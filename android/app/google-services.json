@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "148642737399",
+    "project_id": "unaerp-9f9a5",
+    "storage_bucket": "unaerp-9f9a5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:148642737399:android:a346e51bd801e956c537f2",
+        "android_client_info": {
+          "package_name": "com.example.desafio"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmGQKWmSGr5pTP7QW7D6SPUMX_B71N6IQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
