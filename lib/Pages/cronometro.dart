@@ -4,7 +4,6 @@ import 'package:desafio/Components/dataPicker.dart';
 import 'package:desafio/Components/dropdown.dart';
 import 'package:desafio/Components/textField.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Cronometro extends StatefulWidget {
@@ -15,7 +14,7 @@ class Cronometro extends StatefulWidget {
 }
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: Cronometro(),
   ));
 }
@@ -84,7 +83,7 @@ class _CronometroState extends State<Cronometro> {
 
   void iniciaCronometro() {
     started = true;
-    timer = Timer.periodic(Duration(milliseconds: 10), (timer) {
+    timer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
       setState(() {
         milisegundos++;
         if (milisegundos >= 100) {
@@ -102,9 +101,10 @@ class _CronometroState extends State<Cronometro> {
     });
   }
 
+  @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       infoIniciais();
     });
   }
@@ -116,7 +116,7 @@ class _CronometroState extends State<Cronometro> {
         return Container(
           color: Colors.grey[200],
           child: Padding(
-            padding: EdgeInsets.all(25),
+            padding: const EdgeInsets.all(25),
             child: Column(
               children: [
                 Row(
@@ -145,7 +145,7 @@ class _CronometroState extends State<Cronometro> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 DropdownPadrao(
@@ -159,13 +159,13 @@ class _CronometroState extends State<Cronometro> {
                   labelText: '',
                   largura: 0.95,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Row(
                   children: [
                     Padding(
-                      padding: EdgeInsets.fromLTRB(0, 20, 0, 10),
+                      padding: const EdgeInsets.fromLTRB(0, 20, 0, 10),
                       child: RichText(
                         text: TextSpan(
                           children: [
@@ -198,7 +198,7 @@ class _CronometroState extends State<Cronometro> {
                   controller: freqInicialController,
                   obscureText: false,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 BotaoPrincipal(
@@ -229,11 +229,12 @@ class _CronometroState extends State<Cronometro> {
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     Color cronometroColor =
-        (segundos >= 10) ? Color(0xFFFF1100) : Color(0xFF02FF0A);
+        (segundos >= 10) ? const Color(0xFFFF1100) : const Color(0xFF02FF0A);
     double progress = (segundos * 1000 + milisegundos) / 10000;
-    Color cor = Color(0xFF4B39EF);
+    Color cor = const Color(0xFF4B39EF);
 
     return MaterialApp(
       theme: ThemeData(
@@ -292,7 +293,7 @@ class _CronometroState extends State<Cronometro> {
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 70,
                                     ),
                                     Text(
@@ -303,7 +304,7 @@ class _CronometroState extends State<Cronometro> {
                                         color: cronometroColor,
                                       ),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 70,
                                     ),
                                     Row(
@@ -339,7 +340,7 @@ class _CronometroState extends State<Cronometro> {
                                             }
                                           },
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 20,
                                         ),
                                         InkWell(
@@ -351,7 +352,7 @@ class _CronometroState extends State<Cronometro> {
                                               borderRadius:
                                                   BorderRadius.circular(25),
                                             ),
-                                            child: Icon(
+                                            child: const Icon(
                                               Icons.loop_rounded,
                                               color: Colors.white,
                                             ),
@@ -360,7 +361,7 @@ class _CronometroState extends State<Cronometro> {
                                             salvaVoltas();
                                           },
                                         ),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 20,
                                         ),
                                         InkWell(
@@ -372,7 +373,7 @@ class _CronometroState extends State<Cronometro> {
                                               borderRadius:
                                                   BorderRadius.circular(25),
                                             ),
-                                            child: Icon(
+                                            child: const Icon(
                                               Icons.delete,
                                               color: Colors.white,
                                             ),
@@ -383,9 +384,9 @@ class _CronometroState extends State<Cronometro> {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 50),
+                                    const SizedBox(height: 50),
                                     SingleChildScrollView(
-                                      child: Container(
+                                      child: SizedBox(
                                         height:
                                             MediaQuery.of(context).size.height *
                                                 1,
@@ -393,7 +394,7 @@ class _CronometroState extends State<Cronometro> {
                                           itemCount: voltas.length,
                                           itemBuilder: (context, index) {
                                             return Padding(
-                                              padding: EdgeInsets.all(16),
+                                              padding: const EdgeInsets.all(16),
                                               child: Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.center,
@@ -410,11 +411,11 @@ class _CronometroState extends State<Cronometro> {
                                                           FontStyle.italic,
                                                     ),
                                                   ),
-                                                  SizedBox(
+                                                  const SizedBox(
                                                     width: 30,
                                                   ),
                                                   Text(
-                                                    '${voltas[index]}',
+                                                    voltas[index],
                                                     style:
                                                         GoogleFonts.lexendDeca(
                                                       color: Colors.black,
@@ -451,8 +452,8 @@ class _CronometroState extends State<Cronometro> {
             onPressed: () {
               infoFinais(context);
             },
-            icon: Icon(Icons.done),
-            label: Text(
+            icon: const Icon(Icons.done),
+            label: const Text(
               'Finalizar',
               style: TextStyle(color: Colors.white),
             ),
@@ -467,13 +468,13 @@ class _CronometroState extends State<Cronometro> {
         return Container(
           color: Colors.grey[200],
           child: Padding(
-            padding: EdgeInsets.all(25),
+            padding: const EdgeInsets.all(25),
             child: Column(
               children: [
                 Row(
                   children: [
                     RichText(
-                      text: TextSpan(
+                      text: const TextSpan(
                         children: [
                           TextSpan(
                             text: '1. ',
@@ -496,17 +497,17 @@ class _CronometroState extends State<Cronometro> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 DataPicker(onDateSelected: onDateSelected),
-                SizedBox(
+                const SizedBox(
                   height: 30,
                 ),
                 Row(
                   children: [
                     RichText(
-                      text: TextSpan(
+                      text: const TextSpan(
                         children: [
                           TextSpan(
                             text: '2. ',
@@ -529,7 +530,7 @@ class _CronometroState extends State<Cronometro> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 TextFieldPadrao(
@@ -538,7 +539,7 @@ class _CronometroState extends State<Cronometro> {
                   controller: freqFinalController,
                   obscureText: false,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 BotaoPrincipal(

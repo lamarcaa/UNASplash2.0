@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:desafio/Pages/atleta.dart';
+import 'package:desafio/Pages/treinador.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'firebase_options.dart';
@@ -21,50 +23,63 @@ class MyApp extends StatelessWidget {
   TextEditingController emailController = TextEditingController();
   TextEditingController senhaController = TextEditingController();
 
-  Future<void> verificaLogin(BuildContext context, email, String senha) async {
-    if (email == 'adm' && senha == "123") {
-      print("adm");
-    } else if (email == "trei" && senha == '123') {
-      print('treinador');
-    } else if (email == 'atleta' && senha == "123") {
-      print('aleta');
+  MyApp({super.key});
+
+  Future<void> verificaLogin(
+      BuildContext context, String email, String senha) async {
+    if (email.isEmpty || senha.isEmpty) {
+      print("digite algo");
     }
 
-    if (email.isEmpty || senha.isEmpty) {
-      showTopSnackBar(
-        Overlay.of(context),
-        CustomSnackBar.info(
-          message: "Digite suas credenciais para logar",
-        ),
-      );
-    } else {
-      try {
-        UserCredential userCredential =
-            await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: email,
-          password: senha,
-        );
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => AdmPage()),
-        );
-      } on FirebaseAuthException catch (e) {
-        print('Erro durante o login: $e');
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('pre_cadastro')
+          .where('email', isEqualTo: email)
+          .where('senha_temp', isEqualTo: senha)
+          .get();
 
-        if (e.code == 'user-not-found' || e.code == 'wrong-password') {
-          print(
-              'Credenciais inválidas. Por favor, verifique seu email e senha.');
-        } else {
-          showTopSnackBar(
-            Overlay.of(context),
-            CustomSnackBar.error(
-              message: "E-mail ou senha inválidos, tente novamente",
-            ),
-          );
-        }
+      if (querySnapshot.docs.isNotEmpty) {
+        String tipoUsuario = querySnapshot.docs[0]['tipoUsuario'];
+        redirectToPage(context, tipoUsuario);
+      } else {
+        print('Credenciais inválidas.');
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.error(
+            message: "Credenciais inválidas, tente novamente.",
+          ),
+        );
       }
+    } catch (e) {
+      print('Erro durante a verificação no Firestore: $e');
     }
   }
+
+  void redirectToPage(BuildContext context, String tipoUsuario) {
+    switch (tipoUsuario) {
+      case 'administrador':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const AdmPage()),
+        );
+        break;
+      case 'treinador':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const TreinadorPage()),
+        );
+        break;
+      case 'atleta':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const AtletaPage()),
+        );
+        break;
+    }
+  }
+
+  Future<void> primeiroAcesso(
+      BuildContext context, String email, String senha) async {}
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +111,7 @@ class MyApp extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 30,
                 ),
                 TextFieldPadrao(
@@ -105,7 +120,7 @@ class MyApp extends StatelessWidget {
                   controller: emailController,
                   obscureText: false,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 TextFieldPadrao(
@@ -114,7 +129,7 @@ class MyApp extends StatelessWidget {
                   obscureText: true,
                   controller: senhaController,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 BotaoPrincipal(
@@ -125,11 +140,26 @@ class MyApp extends StatelessWidget {
                         context, emailController.text, senhaController.text);
                   },
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
+                BotaoPrincipal(
+                  labelText: 'Primeiro Acesso',
+                  largura: 0.7,
+                  onPressed: () {
+                    showModalBottomSheet<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return const Text('oi');
+                      },
+                    );
+                  },
+                ),
                 Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(0, 20, 0, 0),
+                  padding: const EdgeInsetsDirectional.fromSTEB(0, 20, 0, 0),
                   child: InkWell(
                     onTap: () {},
-                    child: Text(
+                    child: const Text(
                       'Esqueceu sua senha?',
                       style: TextStyle(
                         color: Colors.white,

@@ -19,7 +19,7 @@ class TextFieldPadrao extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width * largura,
       child: TextFormField(
         obscureText: obscureText,
@@ -30,36 +30,36 @@ class TextFieldPadrao extends StatelessWidget {
           labelStyle: GoogleFonts.lexendDeca(
             fontSize: 16,
             fontWeight: FontWeight.w300,
-            color: Color(0xFF95A1AC),
+            color: const Color(0xFF95A1AC),
           ),
-          hintStyle: TextStyle(
+          hintStyle: const TextStyle(
             color: Color(0xFF95A1AC),
             fontSize: 14,
             fontWeight: FontWeight.normal,
           ),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Color(0x00000000),
               width: 1,
             ),
             borderRadius: BorderRadius.circular(8),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Color(0x00000000),
               width: 1,
             ),
             borderRadius: BorderRadius.circular(8),
           ),
           errorBorder: OutlineInputBorder(
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Color(0x00000000),
               width: 1,
             ),
             borderRadius: BorderRadius.circular(8),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Color(0x00000000),
               width: 1,
             ),
@@ -67,12 +67,12 @@ class TextFieldPadrao extends StatelessWidget {
           ),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: EdgeInsetsDirectional.fromSTEB(20, 24, 20, 24),
+          contentPadding: const EdgeInsetsDirectional.fromSTEB(20, 24, 20, 24),
         ),
         style: GoogleFonts.lexendDeca(
           fontSize: 16,
           fontWeight: FontWeight.w300,
-          color: Color.fromARGB(255, 72, 72, 72),
+          color: const Color.fromARGB(255, 72, 72, 72),
         ),
       ),
     );

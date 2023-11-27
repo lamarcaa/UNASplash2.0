@@ -14,7 +14,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(CadastraAtleta());
+  runApp(const CadastraAtleta());
 }
 
 class CadastraAtleta extends StatefulWidget {
@@ -39,7 +39,7 @@ Future<void> cadastrarUsuario(
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("${nome} cadastrado com sucesso!"),
+        content: Text("$nome cadastrado com sucesso!"),
       ),
     );
   } catch (e) {
@@ -85,6 +85,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
 
   String tipoDeUsuario = 'Administrador';
   String sexoDoUsuario = 'Masculino';
+  @override
   Widget build(BuildContext context) {
     String usuarioSelecionado = 'Administrador';
     List<String> op = ['Administrador', 'Treinador', 'Atleta'];
@@ -109,7 +110,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("${nome} cadastrado com sucesso!"),
+            content: Text("$nome cadastrado com sucesso!"),
           ),
         );
       } catch (e) {
@@ -783,26 +784,26 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                 height: 50,
                               ),
                               Padding(
-                                padding: EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
                                 child: InkWell(
                                   onTap: () {},
                                   child: Container(
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: Colors.white,
                                       borderRadius:
                                           BorderRadius.all(Radius.circular(10)),
                                     ),
                                     child: Padding(
-                                      padding: EdgeInsets.all(20),
+                                      padding: const EdgeInsets.all(20),
                                       child: Align(
                                         alignment: Alignment.centerLeft,
                                         child: Row(
                                           children: [
-                                            Icon(
+                                            const Icon(
                                               Icons.image,
                                               color: Colors.black45,
                                             ),
-                                            SizedBox(
+                                            const SizedBox(
                                               width: 10,
                                             ),
                                             Text(
@@ -821,26 +822,26 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                 ),
                               ),
                               Padding(
-                                padding: EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
                                 child: InkWell(
                                   onTap: () {},
                                   child: Container(
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: Colors.white,
                                       borderRadius:
                                           BorderRadius.all(Radius.circular(10)),
                                     ),
                                     child: Padding(
-                                      padding: EdgeInsets.all(20),
+                                      padding: const EdgeInsets.all(20),
                                       child: Align(
                                         alignment: Alignment.centerLeft,
                                         child: Row(
                                           children: [
-                                            Icon(
+                                            const Icon(
                                               Icons.image,
                                               color: Colors.black45,
                                             ),
-                                            SizedBox(
+                                            const SizedBox(
                                               width: 10,
                                             ),
                                             Text(
@@ -859,26 +860,26 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                 ),
                               ),
                               Padding(
-                                padding: EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
                                 child: InkWell(
                                   onTap: () {},
                                   child: Container(
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: Colors.white,
                                       borderRadius:
                                           BorderRadius.all(Radius.circular(10)),
                                     ),
                                     child: Padding(
-                                      padding: EdgeInsets.all(20),
+                                      padding: const EdgeInsets.all(20),
                                       child: Align(
                                         alignment: Alignment.centerLeft,
                                         child: Row(
                                           children: [
-                                            Icon(
+                                            const Icon(
                                               Icons.image,
                                               color: Colors.black45,
                                             ),
-                                            SizedBox(
+                                            const SizedBox(
                                               width: 10,
                                             ),
                                             Text(
@@ -897,26 +898,26 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                 ),
                               ),
                               Padding(
-                                padding: EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
                                 child: InkWell(
                                   onTap: () {},
                                   child: Container(
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: Colors.white,
                                       borderRadius:
                                           BorderRadius.all(Radius.circular(10)),
                                     ),
                                     child: Padding(
-                                      padding: EdgeInsets.all(20),
+                                      padding: const EdgeInsets.all(20),
                                       child: Align(
                                         alignment: Alignment.centerLeft,
                                         child: Row(
                                           children: [
-                                            Icon(
+                                            const Icon(
                                               Icons.image,
                                               color: Colors.black45,
                                             ),
-                                            SizedBox(
+                                            const SizedBox(
                                               width: 10,
                                             ),
                                             Text(
@@ -935,26 +936,26 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                 ),
                               ),
                               Padding(
-                                padding: EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
                                 child: InkWell(
                                   onTap: () {},
                                   child: Container(
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: Colors.white,
                                       borderRadius:
                                           BorderRadius.all(Radius.circular(10)),
                                     ),
                                     child: Padding(
-                                      padding: EdgeInsets.all(20),
+                                      padding: const EdgeInsets.all(20),
                                       child: Align(
                                         alignment: Alignment.centerLeft,
                                         child: Row(
                                           children: [
-                                            Icon(
+                                            const Icon(
                                               Icons.image,
                                               color: Colors.black45,
                                             ),
-                                            SizedBox(
+                                            const SizedBox(
                                               width: 10,
                                             ),
                                             Text(
@@ -973,26 +974,26 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                 ),
                               ),
                               Padding(
-                                padding: EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
                                 child: InkWell(
                                   onTap: () {},
                                   child: Container(
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: Colors.white,
                                       borderRadius:
                                           BorderRadius.all(Radius.circular(10)),
                                     ),
                                     child: Padding(
-                                      padding: EdgeInsets.all(20),
+                                      padding: const EdgeInsets.all(20),
                                       child: Align(
                                         alignment: Alignment.centerLeft,
                                         child: Row(
                                           children: [
-                                            Icon(
+                                            const Icon(
                                               Icons.image,
                                               color: Colors.black45,
                                             ),
-                                            SizedBox(
+                                            const SizedBox(
                                               width: 10,
                                             ),
                                             Text(
@@ -1232,7 +1233,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   ),
                                 ]),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 20,
                               ),
                               Row(
@@ -1261,7 +1262,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                           color: Colors.black87,
                                         ),
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 50,
                                       ),
                                       Checkbox(
@@ -1289,7 +1290,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   ),
                                 ],
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 30,
                               ),
                               Visibility(
@@ -1330,11 +1331,11 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   ),
                                 ]),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 30,
                               ),
                               Padding(
-                                padding: EdgeInsets.fromLTRB(50, 0, 0, 0),
+                                padding: const EdgeInsets.fromLTRB(50, 0, 0, 0),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
@@ -1397,9 +1398,9 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   ],
                                 ),
                               ),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                               Padding(
-                                padding: EdgeInsets.fromLTRB(50, 0, 0, 0),
+                                padding: const EdgeInsets.fromLTRB(50, 0, 0, 0),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
@@ -1461,9 +1462,9 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   ],
                                 ),
                               ),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                               Padding(
-                                padding: EdgeInsets.fromLTRB(50, 0, 0, 0),
+                                padding: const EdgeInsets.fromLTRB(50, 0, 0, 0),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
@@ -1500,7 +1501,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   ],
                                 ),
                               ),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                               Visibility(
                                 visible: telResidencial,
                                 child: Column(
@@ -1511,7 +1512,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                       obscureText: false,
                                       controller: emailController,
                                     ),
-                                    SizedBox(height: 20),
+                                    const SizedBox(height: 20),
                                   ],
                                 ),
                               ),
@@ -1525,7 +1526,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                       obscureText: false,
                                       controller: emailController,
                                     ),
-                                    SizedBox(height: 20),
+                                    const SizedBox(height: 20),
                                   ],
                                 ),
                               ),
@@ -1539,7 +1540,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                       obscureText: false,
                                       controller: emailController,
                                     ),
-                                    SizedBox(height: 20),
+                                    const SizedBox(height: 20),
                                   ],
                                 ),
                               ),
@@ -1553,7 +1554,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                       obscureText: false,
                                       controller: emailController,
                                     ),
-                                    SizedBox(height: 20),
+                                    const SizedBox(height: 20),
                                   ],
                                 ),
                               ),
@@ -1567,7 +1568,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                       obscureText: false,
                                       controller: emailController,
                                     ),
-                                    SizedBox(height: 20),
+                                    const SizedBox(height: 20),
                                   ],
                                 ),
                               ),
@@ -1575,7 +1576,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   largura: 0.95,
                                   labelText: 'Cadastrar Usuário',
                                   onPressed: () {}),
-                              SizedBox(
+                              const SizedBox(
                                 height: 50,
                               ),
                             ],

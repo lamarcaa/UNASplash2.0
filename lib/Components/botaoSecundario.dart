@@ -27,7 +27,7 @@ class BotaoSecundario extends StatelessWidget {
       ),
       child: Container(
         width: MediaQuery.of(context).size.width * largura,
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         child: Center(
           child: Text(
             labelText,

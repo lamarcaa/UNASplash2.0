@@ -1,22 +1,22 @@
 import 'package:desafio/Components/appBar.dart';
 import 'package:desafio/Components/cardPerfil.dart';
-import 'package:desafio/Pages/cadastraUser.dart';
 import 'package:desafio/Pages/cronometro.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: AtletaPage(),
   ));
 }
 
 class AtletaPage extends StatelessWidget {
+  const AtletaPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black12,
-      body: SingleChildScrollView(
+      body: const SingleChildScrollView(
         child: Column(
           children: [
             AppBarPersonalizada(
@@ -43,15 +43,15 @@ status: '',
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Cronometro(),
+              builder: (context) => const Cronometro(),
             ),
           );
         },
-        child: Icon(
+        backgroundColor: const Color(0xFF4B39EF),
+        child: const Icon(
           Icons.timer,
           color: Colors.white,
         ),
-        backgroundColor: Color(0xFF4B39EF),
       ),
     );
   }

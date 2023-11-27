@@ -17,7 +17,7 @@ class AppBarPersonalizada extends StatelessWidget {
       children: [
         Container(
           color: Colors.white,
-          padding: EdgeInsets.fromLTRB(16, 36, 16, 0),
+          padding: const EdgeInsets.fromLTRB(16, 36, 16, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +40,7 @@ class AppBarPersonalizada extends StatelessWidget {
                       style: GoogleFonts.lexendDeca(
                         fontSize: 32,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF4B39EF),
+                        color: const Color(0xFF4B39EF),
                       ),
                     ),
                   ),
@@ -52,8 +52,8 @@ class AppBarPersonalizada extends StatelessWidget {
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                        title: Text('UNASplash'),
-                        content: Text('Deseja sair?'),
+                        title: const Text('UNASplash'),
+                        content: const Text('Deseja sair?'),
                         actions: <Widget>[
                           TextButton(
                             onPressed: () {
@@ -63,7 +63,7 @@ class AppBarPersonalizada extends StatelessWidget {
                                     builder: (context) => MyApp()),
                               );
                             },
-                            child: Text('Sair do aplicativo'),
+                            child: const Text('Sair do aplicativo'),
                           ),
                         ],
                       );
@@ -74,20 +74,20 @@ class AppBarPersonalizada extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: Color(0x4C4B39EF),
+                    color: const Color(0x4C4B39EF),
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: Color(0xFF4B39EF),
+                      color: const Color(0xFF4B39EF),
                       width: 2,
                     ),
                   ),
                   child: Padding(
-                    padding: EdgeInsets.all(2),
+                    padding: const EdgeInsets.all(2),
                     child: Container(
                       width: 40,
                       height: 40,
                       clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                       ),
                       child: Image.network(
@@ -104,7 +104,7 @@ class AppBarPersonalizada extends StatelessWidget {
         Container(
           width: MediaQuery.of(context).size.width,
           color: Colors.white,
-          padding: EdgeInsets.fromLTRB(20, 50, 20, 10),
+          padding: const EdgeInsets.fromLTRB(20, 50, 20, 10),
           child: Center(
             child: Text(
               titulo,

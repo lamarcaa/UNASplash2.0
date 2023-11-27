@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() {
-  runApp(Perfil(nome: '', tipoUsuario: '', userEmail: ''));
+  runApp(const Perfil(nome: '', tipoUsuario: '', userEmail: ''));
 }
 
 class Perfil extends StatelessWidget {
@@ -29,7 +29,7 @@ class Perfil extends StatelessWidget {
       ),
       home: Scaffold(
         body: Container(
-          color: Color(0xFFB5B5B5),
+          color: const Color(0xFFB5B5B5),
           child: CustomScrollView(
             slivers: <Widget>[
               SliverAppBar.large(
@@ -52,7 +52,7 @@ class Perfil extends StatelessWidget {
                 ),
               ),
               SliverToBoxAdapter(
-                child: Container(
+                child: SizedBox(
                   width: 140,
                   child: Stack(
                     children: [
@@ -133,11 +133,11 @@ class Perfil extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
+                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
                           child: Text(
                             'Informações',
                             style: GoogleFonts.lexendDeca(
-                              color: Color(0xFF101213),
+                              color: const Color(0xFF101213),
                               fontSize: 22,
                               fontWeight: FontWeight.w200,
                             ),
@@ -169,7 +169,7 @@ class Perfil extends StatelessWidget {
                                     style: GoogleFonts.lexendDeca(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: Color.fromARGB(255, 44, 44, 44),
+                                      color: const Color.fromARGB(255, 44, 44, 44),
                                     ),
                                   ),
                                 ),
@@ -203,7 +203,7 @@ class Perfil extends StatelessWidget {
                                     style: GoogleFonts.lexendDeca(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: Color.fromARGB(255, 44, 44, 44),
+                                      color: const Color.fromARGB(255, 44, 44, 44),
                                     ),
                                   ),
                                 ),
@@ -237,7 +237,7 @@ class Perfil extends StatelessWidget {
                                     style: GoogleFonts.lexendDeca(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: Color.fromARGB(255, 44, 44, 44),
+                                      color: const Color.fromARGB(255, 44, 44, 44),
                                     ),
                                   ),
                                 ),
@@ -245,7 +245,7 @@ class Perfil extends StatelessWidget {
                             ],
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 20,
                         ),
                         Visibility(
@@ -258,7 +258,7 @@ class Perfil extends StatelessWidget {
                         ),
                         Visibility(
                           visible: status == "pendente",
-                          child: BotaoPrincipal(
+                          child: const BotaoPrincipal(
                               largura: 0.95, labelText: 'Autenticar Cadastro'),
                         )
                       ],

@@ -8,7 +8,7 @@ class DropdownPadrao extends StatefulWidget {
   final String labelText;
   final double largura;
 
-  DropdownPadrao({
+  const DropdownPadrao({super.key, 
     required this.options,
     required this.value,
     required this.onChanged,
@@ -23,7 +23,7 @@ class DropdownPadrao extends StatefulWidget {
 class _DropdownPadraoState extends State<DropdownPadrao> {
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width * widget.largura,
       child: DropdownButtonFormField<String>(
         value: widget.value,
@@ -38,36 +38,36 @@ class _DropdownPadraoState extends State<DropdownPadrao> {
           labelStyle: GoogleFonts.lexendDeca(
             fontSize: 16,
             fontWeight: FontWeight.w300,
-            color: Color(0xFF95A1AC),
+            color: const Color(0xFF95A1AC),
           ),
-          hintStyle: TextStyle(
+          hintStyle: const TextStyle(
             color: Color(0xFF95A1AC),
             fontSize: 14,
             fontWeight: FontWeight.normal,
           ),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Color(0x00000000),
               width: 1,
             ),
             borderRadius: BorderRadius.circular(8),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Color(0x00000000),
               width: 1,
             ),
             borderRadius: BorderRadius.circular(8),
           ),
           errorBorder: OutlineInputBorder(
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Color(0x00000000),
               width: 1,
             ),
             borderRadius: BorderRadius.circular(8),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Color(0x00000000),
               width: 1,
             ),
@@ -75,7 +75,7 @@ class _DropdownPadraoState extends State<DropdownPadrao> {
           ),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: EdgeInsetsDirectional.fromSTEB(20, 24, 20, 24),
+          contentPadding: const EdgeInsetsDirectional.fromSTEB(20, 24, 20, 24),
         ),
         onChanged: widget.onChanged,
       ),

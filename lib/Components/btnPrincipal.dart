@@ -19,7 +19,7 @@ class BotaoPrincipal extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.zero,
-        backgroundColor: Color(0xFF4B39EF),
+        backgroundColor: const Color(0xFF4B39EF),
         elevation: 3,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -27,7 +27,7 @@ class BotaoPrincipal extends StatelessWidget {
       ),
       child: Container(
         width: MediaQuery.of(context).size.width * largura,
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         child: Center(
           child: Text(
             labelText,

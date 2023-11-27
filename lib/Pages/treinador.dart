@@ -8,19 +8,20 @@ import 'package:desafio/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: TreinadorPage(),
   ));
 }
 
 class TreinadorPage extends StatefulWidget {
+  const TreinadorPage({super.key});
+
   @override
   _TreinadorPageState createState() => _TreinadorPageState();
 }
@@ -33,11 +34,11 @@ class _TreinadorPageState extends State<TreinadorPage>
           await FirebaseFirestore.instance.collection('usuarios').get();
 
       return querySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
+          .map((doc) => doc.data())
           .toList();
     } catch (e) {
       print('Erro ao carregar usuários: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -74,7 +75,7 @@ class _TreinadorPageState extends State<TreinadorPage>
                     ),
                   ),
                   Tab(
-                    icon: const Row(
+                    icon: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.analytics_outlined),
@@ -162,7 +163,7 @@ class _TreinadorPageState extends State<TreinadorPage>
       future: loadUsers(),
       builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
         return Padding(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: ListView.builder(
             itemCount: snapshot.data?.length ?? 0,
             itemBuilder: (context, index) {

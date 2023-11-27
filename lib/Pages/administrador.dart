@@ -4,24 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:desafio/Components/appBar.dart';
 import 'package:desafio/Components/cardPerfil.dart';
-import 'package:desafio/Pages/cadastraUser.dart';
 import 'package:desafio/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Importe a biblioteca do Firebase Auth aqui
-import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: AdmPage(),
     );
   }
@@ -44,6 +44,8 @@ Future<List<Map<String, dynamic>>> getDocuments(String collectionPath) async {
 }
 
 class AdmPage extends StatefulWidget {
+  const AdmPage({super.key});
+
   @override
   _AdmPageState createState() => _AdmPageState();
 }
@@ -83,11 +85,11 @@ class _AdmPageState extends State<AdmPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            AppBarPersonalizada(
+            const AppBarPersonalizada(
               nome: 'Administrador',
               titulo: 'Gerencie e cadastre novos usuários!',
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             for (final usuario in infoUsuario)
@@ -118,14 +120,14 @@ class _AdmPageState extends State<AdmPage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CadastraUser()),
+            MaterialPageRoute(builder: (context) => const CadastraUser()),
           );
         },
-        child: Icon(
+        backgroundColor: const Color(0xFF4B39EF),
+        child: const Icon(
           Icons.add,
           color: Colors.white,
         ),
-        backgroundColor: Color(0xFF4B39EF),
       ),
     );
   }

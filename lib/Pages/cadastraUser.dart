@@ -5,13 +5,9 @@ import 'package:desafio/Components/btnPrincipal.dart';
 import 'package:desafio/Components/dropdown.dart';
 import 'package:desafio/Components/textField.dart';
 import 'package:desafio/firebase_options.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:top_snackbar_flutter/custom_snack_bar.dart';
-import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,35 +27,36 @@ class CadastraUser extends StatefulWidget {
 class _CadastraUserState extends State<CadastraUser> {
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  String tipoDeUsuario = 'Administrador';
+  String tipoDeUsuario = 'administrador';
 
+  @override
   Widget build(BuildContext context) {
     print("chegou");
 
-    String usuarioSelecionado = 'Administrador';
-    List<String> op = ['Administrador', 'Treinador', 'Atleta'];
+    String usuarioSelecionado = 'administrador';
+    List<String> op = ['administrador', 'treinador', 'atleta'];
 
     Future<void> cadastrarUsuario(String tipoUsuario, String nome, String email,
         BuildContext context) async {
       Random random = Random();
       int numeroAleatorio = random.nextInt(900) + 100;
-      String senha_temp = 'unaerp' + numeroAleatorio.toString();
-      print(senha_temp);
+      String senhaTemp = 'unaerp$numeroAleatorio';
+      print(senhaTemp);
 
       try {
         await FirebaseFirestore.instance.collection('pre_cadastro').doc().set({
           'email': email,
           'nome': nome,
           'tipoUsuario': tipoUsuario,
-          'status': tipoUsuario == 'Atleta' ? 'incompleto' : 'ativo',
-          'senha_temp': senha_temp,
+          'status': tipoUsuario == 'atleta' ? 'incompleto' : 'ativo',
+          'senha_temp': senhaTemp,
         });
 
         print("foi");
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("${nome} cadastrado com sucesso!"),
+            content: Text("$nome cadastrado com sucesso!"),
           ),
         );
       } catch (e) {
@@ -72,8 +69,8 @@ class _CadastraUserState extends State<CadastraUser> {
         useMaterial3: true,
         colorSchemeSeed: const Color(0xff6750A4),
       ),
-      home: Material(
-        child: CustomScrollView(
+      home: Scaffold(
+        body: CustomScrollView(
           slivers: <Widget>[
             SliverAppBar.large(
               leading: IconButton(
@@ -124,7 +121,7 @@ class _CadastraUserState extends State<CadastraUser> {
                         child: Column(
                           children: [
                             Padding(
-                              padding: EdgeInsets.fromLTRB(20, 20, 0, 10),
+                              padding: const EdgeInsets.fromLTRB(20, 20, 0, 10),
                               child: Row(children: [
                                 RichText(
                                   text: TextSpan(
@@ -155,18 +152,18 @@ class _CadastraUserState extends State<CadastraUser> {
                               value: usuarioSelecionado,
                               onChanged: (value) {
                                 setState(() {
-                                  usuarioSelecionado = value ?? 'Administrador';
+                                  usuarioSelecionado = value ?? 'administrador';
                                   tipoDeUsuario = usuarioSelecionado;
                                 });
                               },
                               labelText: '',
                               largura: 0.95,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20,
                             ),
                             Padding(
-                              padding: EdgeInsets.fromLTRB(20, 0, 0, 10),
+                              padding: const EdgeInsets.fromLTRB(20, 0, 0, 10),
                               child: Row(children: [
                                 RichText(
                                   text: TextSpan(
@@ -200,7 +197,7 @@ class _CadastraUserState extends State<CadastraUser> {
                               obscureText: false,
                             ),
                             Padding(
-                              padding: EdgeInsets.fromLTRB(20, 20, 0, 10),
+                              padding: const EdgeInsets.fromLTRB(20, 20, 0, 10),
                               child: Row(children: [
                                 RichText(
                                   text: TextSpan(
@@ -233,20 +230,20 @@ class _CadastraUserState extends State<CadastraUser> {
                               obscureText: false,
                               controller: emailController,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
                             Padding(
-                              padding: EdgeInsets.all(20),
+                              padding: const EdgeInsets.all(20),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.warning_rounded,
                                     size: 30,
                                     color: Colors.black54,
                                   ),
-                                  SizedBox(width: 10),
+                                  const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
                                       'A senha de primeiro acesso do usuário será enviada por e-mail!',
@@ -261,7 +258,7 @@ class _CadastraUserState extends State<CadastraUser> {
                                 ],
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
                             BotaoPrincipal(
