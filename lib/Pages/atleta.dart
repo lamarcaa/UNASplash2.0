@@ -29,7 +29,8 @@ class AtletaPage extends StatelessWidget {
             ),
             CardPerfil(
               nome: 'Gabriel Lamarca Galdino da Silva',
-              papel: 'Treino realizado em 19/11/2023',
+              tipoUsuario: 'Treino realizado em 19/11/2023',
+status: '',
             ),
             SizedBox(
               height: 10,
@@ -46,7 +47,10 @@ class AtletaPage extends StatelessWidget {
             ),
           );
         },
-        child: Icon(Icons.timer),
+        child: Icon(
+          Icons.timer,
+          color: Colors.white,
+        ),
         backgroundColor: Color(0xFF4B39EF),
       ),
     );

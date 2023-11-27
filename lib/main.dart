@@ -14,9 +14,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MaterialApp(
-    home: MyApp(),
-  ));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -24,6 +22,14 @@ class MyApp extends StatelessWidget {
   TextEditingController senhaController = TextEditingController();
 
   Future<void> verificaLogin(BuildContext context, email, String senha) async {
+    if (email == 'adm' && senha == "123") {
+      print("adm");
+    } else if (email == "trei" && senha == '123') {
+      print('treinador');
+    } else if (email == 'atleta' && senha == "123") {
+      print('aleta');
+    }
+
     if (email.isEmpty || senha.isEmpty) {
       showTopSnackBar(
         Overlay.of(context),

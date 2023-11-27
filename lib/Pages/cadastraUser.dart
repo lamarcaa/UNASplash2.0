@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:desafio/Components/btnPrincipal.dart';
 import 'package:desafio/Components/dropdown.dart';
@@ -30,32 +32,34 @@ class _CadastraUserState extends State<CadastraUser> {
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   String tipoDeUsuario = 'Administrador';
+
   Widget build(BuildContext context) {
+    print("chegou");
+
     String usuarioSelecionado = 'Administrador';
     List<String> op = ['Administrador', 'Treinador', 'Atleta'];
 
     Future<void> cadastrarUsuario(String tipoUsuario, String nome, String email,
         BuildContext context) async {
-      try {
-        UserCredential userCredential = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(
-                email: email, password: 'unasplash123');
+      Random random = Random();
+      int numeroAleatorio = random.nextInt(900) + 100;
+      String senha_temp = 'unaerp' + numeroAleatorio.toString();
+      print(senha_temp);
 
-        String userId = userCredential.user!.uid;
-        await FirebaseFirestore.instance
-            .collection('usuarios')
-            .doc(userId)
-            .set({
+      try {
+        await FirebaseFirestore.instance.collection('pre_cadastro').doc().set({
           'email': email,
           'nome': nome,
           'tipoUsuario': tipoUsuario,
+          'status': tipoUsuario == 'Atleta' ? 'incompleto' : 'ativo',
+          'senha_temp': senha_temp,
         });
-        Navigator.pop(context);
 
-        showTopSnackBar(
-          Overlay.of(context),
-          CustomSnackBar.success(
-            message: "${nome} cadastrado com sucesso!",
+        print("foi");
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("${nome} cadastrado com sucesso!"),
           ),
         );
       } catch (e) {
@@ -230,7 +234,35 @@ class _CadastraUserState extends State<CadastraUser> {
                               controller: emailController,
                             ),
                             SizedBox(
-                              height: 30,
+                              height: 10,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.warning_rounded,
+                                    size: 30,
+                                    color: Colors.black54,
+                                  ),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      'A senha de primeiro acesso do usuário será enviada por e-mail!',
+                                      style: GoogleFonts.lexendDeca(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black54,
+                                      ),
+                                      softWrap: true,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
                             ),
                             BotaoPrincipal(
                               largura: 0.95,

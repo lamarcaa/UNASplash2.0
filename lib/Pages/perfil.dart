@@ -1,3 +1,4 @@
+import 'package:desafio/Components/btnPrincipal.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -9,12 +10,14 @@ class Perfil extends StatelessWidget {
   final String nome;
   final String tipoUsuario;
   final String userEmail;
+  final String? status;
 
   const Perfil({
     Key? key,
     required this.nome,
     required this.tipoUsuario,
     required this.userEmail,
+    this.status,
   }) : super(key: key);
 
   @override
@@ -26,11 +29,11 @@ class Perfil extends StatelessWidget {
       ),
       home: Scaffold(
         body: Container(
-          color: const Color(0xFF4B39EF),
+          color: Color(0xFFB5B5B5),
           child: CustomScrollView(
             slivers: <Widget>[
               SliverAppBar.large(
-                backgroundColor: const Color(0xFF4B39EF),
+                backgroundColor: const Color(0xFFB5B5B5),
                 leading: IconButton(
                   icon: const Icon(
                     Icons.arrow_back,
@@ -136,7 +139,7 @@ class Perfil extends StatelessWidget {
                             style: GoogleFonts.lexendDeca(
                               color: Color(0xFF101213),
                               fontSize: 22,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w200,
                             ),
                           ),
                         ),
@@ -165,7 +168,7 @@ class Perfil extends StatelessWidget {
                                     textAlign: TextAlign.start,
                                     style: GoogleFonts.lexendDeca(
                                       fontSize: 14,
-                                      fontWeight: FontWeight.w300,
+                                      fontWeight: FontWeight.w500,
                                       color: Color.fromARGB(255, 44, 44, 44),
                                     ),
                                   ),
@@ -199,7 +202,7 @@ class Perfil extends StatelessWidget {
                                     textAlign: TextAlign.start,
                                     style: GoogleFonts.lexendDeca(
                                       fontSize: 14,
-                                      fontWeight: FontWeight.w300,
+                                      fontWeight: FontWeight.w500,
                                       color: Color.fromARGB(255, 44, 44, 44),
                                     ),
                                   ),
@@ -233,7 +236,7 @@ class Perfil extends StatelessWidget {
                                     textAlign: TextAlign.start,
                                     style: GoogleFonts.lexendDeca(
                                       fontSize: 14,
-                                      fontWeight: FontWeight.w300,
+                                      fontWeight: FontWeight.w500,
                                       color: Color.fromARGB(255, 44, 44, 44),
                                     ),
                                   ),
@@ -242,6 +245,22 @@ class Perfil extends StatelessWidget {
                             ],
                           ),
                         ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Visibility(
+                          visible: status == "incompleto",
+                          child: BotaoPrincipal(
+                            largura: 0.95,
+                            labelText: 'Finalizar Cadastro',
+                            onPressed: () {},
+                          ),
+                        ),
+                        Visibility(
+                          visible: status == "pendente",
+                          child: BotaoPrincipal(
+                              largura: 0.95, labelText: 'Autenticar Cadastro'),
+                        )
                       ],
                     ),
                   ),

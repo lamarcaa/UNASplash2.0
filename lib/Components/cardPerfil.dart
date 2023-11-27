@@ -1,12 +1,47 @@
+import 'package:desafio/Components/btnPrincipal.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CardPerfil extends StatelessWidget {
   final String nome;
-  final String papel;
+  final String tipoUsuario;
+  final String? status;
 
-  const CardPerfil({Key? key, required this.nome, required this.papel})
-      : super(key: key);
+  const CardPerfil({
+    Key? key,
+    required this.nome,
+    required this.tipoUsuario,
+    this.status,
+  }) : super(key: key);
+
+  Icon getStatusIcon() {
+    if (status == 'ativo') {
+      return Icon(Icons.check_circle, color: Colors.green);
+    } else if (status == 'incompleto') {
+      return Icon(Icons.warning_rounded, color: Colors.orange[400]);
+    } else {
+      // Caso pendente ou null
+      return Icon(Icons.access_time, color: Colors.grey);
+    }
+  }
+
+  Color? getStatusColor() {
+    if (status == 'incompleto') {
+      return Colors.orange[400];
+    } else {
+      return Colors.grey;
+    }
+  }
+
+  String getStatusText() {
+    if (status == 'ativo') {
+      return 'ativo';
+    } else if (status == 'incompleto') {
+      return 'incompleto';
+    } else {
+      return 'pendente';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +100,7 @@ class CardPerfil extends StatelessWidget {
                   Padding(
                     padding: EdgeInsetsDirectional.fromSTEB(12, 4, 0, 0),
                     child: Text(
-                      papel,
+                      tipoUsuario,
                       style: GoogleFonts.lexendDeca(
                         fontSize: 14,
                         fontWeight: FontWeight.w300,
@@ -76,9 +111,30 @@ class CardPerfil extends StatelessWidget {
                 ],
               ),
             ),
+            if (status !=
+                null) // Verifica se o status é fornecido antes de exibi-lo
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  children: [
+                    getStatusIcon(), // Use a função para obter o ícone dinamicamente
+                    SizedBox(width: 4),
+                    Text(
+                      getStatusText(),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w300,
+                        color:
+                            getStatusColor(), // Use a função para obter a cor dinamicamente
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),
+            
     );
   }
 }

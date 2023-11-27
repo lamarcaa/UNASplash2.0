@@ -6,6 +6,7 @@ class TextFieldPadrao extends StatelessWidget {
   final double largura;
   final bool obscureText;
   final TextEditingController controller;
+  final String? Function(String?)? validator;
 
   const TextFieldPadrao({
     Key? key,
@@ -13,15 +14,17 @@ class TextFieldPadrao extends StatelessWidget {
     required this.largura,
     required this.obscureText,
     required this.controller,
+    this.validator,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width * largura,
-      child: TextField(
+      child: TextFormField(
         obscureText: obscureText,
         controller: controller,
+        validator: validator,
         decoration: InputDecoration(
           labelText: labelText,
           labelStyle: GoogleFonts.lexendDeca(

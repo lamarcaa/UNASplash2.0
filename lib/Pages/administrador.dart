@@ -7,7 +7,7 @@ import 'package:desafio/Components/cardPerfil.dart';
 import 'package:desafio/Pages/cadastraUser.dart';
 import 'package:desafio/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';  // Importe a biblioteca do Firebase Auth aqui
+import 'package:firebase_auth/firebase_auth.dart'; // Importe a biblioteca do Firebase Auth aqui
 import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
@@ -56,7 +56,7 @@ class _AdmPageState extends State<AdmPage> {
   void initState() {
     super.initState();
     fetchData();
-    fetchUserEmail();  // Obtenha o e-mail do usuário autenticado ao inicializar a página
+    fetchUserEmail(); // Obtenha o e-mail do usuário autenticado ao inicializar a página
   }
 
   Future<void> fetchData() async {
@@ -94,7 +94,8 @@ class _AdmPageState extends State<AdmPage> {
               InkWell(
                 child: CardPerfil(
                   nome: usuario['nome'] ?? '',
-                  papel: usuario['tipoUsuario'] ?? '',
+                  tipoUsuario: usuario['tipoUsuario'] ?? '',
+                  status: '',
                 ),
                 onTap: () {
                   Navigator.push(
@@ -103,7 +104,8 @@ class _AdmPageState extends State<AdmPage> {
                       builder: (context) => Perfil(
                         nome: usuario['nome'] ?? '',
                         tipoUsuario: usuario['tipoUsuario'] ?? '',
-                        userEmail: userEmail,  // Passe o e-mail como parâmetro para o Perfil
+                        userEmail:
+                            userEmail, // Passe o e-mail como parâmetro para o Perfil
                       ),
                     ),
                   );
