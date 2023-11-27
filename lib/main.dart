@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:desafio/Pages/atleta.dart';
+import 'package:desafio/Pages/primeiroAcesso.dart';
 import 'package:desafio/Pages/treinador.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
@@ -28,27 +30,44 @@ class MyApp extends StatelessWidget {
   Future<void> verificaLogin(
       BuildContext context, String email, String senha) async {
     if (email.isEmpty || senha.isEmpty) {
-      print("digite algo");
+      print("Digite algo");
+      return;
     }
 
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('pre_cadastro')
+          .collection('cadastro_finalizado')
           .where('email', isEqualTo: email)
-          .where('senha_temp', isEqualTo: senha)
+          .where('senhaCadastrada', isEqualTo: senha)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        String tipoUsuario = querySnapshot.docs[0]['tipoUsuario'];
-        redirectToPage(context, tipoUsuario);
+        DocumentSnapshot userSnapshot = querySnapshot.docs.first;
+        Map<String, dynamic> userData =
+            userSnapshot.data() as Map<String, dynamic>;
+
+        String senhaUsuario = userData['senhaCadastrada'];
+        String emailUsuario = userData['email'];
+
+        if (senhaUsuario == senha && emailUsuario == email) {
+          try {
+            UserCredential userCredential =
+                await FirebaseAuth.instance.createUserWithEmailAndPassword(
+              email: email,
+              password: senha,
+            );
+
+            User? user = userCredential.user;
+            print('Usuário criado com UID: ${user?.uid}');
+          } catch (e) {
+            print(
+                'Erro durante a criação do usuário no Firebase Authentication: $e');
+          }
+        } else {
+          print('Credenciais inválidas');
+        }
       } else {
-        print('Credenciais inválidas.');
-        showTopSnackBar(
-          Overlay.of(context),
-          const CustomSnackBar.error(
-            message: "Credenciais inválidas, tente novamente.",
-          ),
-        );
+        print('Usuário não encontrado');
       }
     } catch (e) {
       print('Erro durante a verificação no Firestore: $e');
@@ -88,7 +107,7 @@ class MyApp extends StatelessWidget {
         textDirection: TextDirection.ltr,
         child: Scaffold(
           body: Container(
-            color: Colors.grey[400],
+            color: Colors.black54,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -147,11 +166,10 @@ class MyApp extends StatelessWidget {
                   labelText: 'Primeiro Acesso',
                   largura: 0.7,
                   onPressed: () {
-                    showModalBottomSheet<void>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return const Text('oi');
-                      },
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const PrimeiroAcesso()),
                     );
                   },
                 ),

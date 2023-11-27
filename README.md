@@ -5,6 +5,7 @@ flutter pub add validatorless
 
 status
 pendente = atleta fez seu proprio cadastro mas o treinador nao validou
-ativo = tudo ok
-inativo = nao aparece ()
+ativo = usuario ja fez o primeiro login
+inativo = ainda nao fez o primeiro login
+excluido = usuario excluido
 incompleto = adm criou mas treinador ou atleta ainda nao finalizou

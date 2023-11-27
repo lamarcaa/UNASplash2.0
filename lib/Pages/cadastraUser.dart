@@ -48,7 +48,7 @@ class _CadastraUserState extends State<CadastraUser> {
           'email': email,
           'nome': nome,
           'tipoUsuario': tipoUsuario,
-          'status': tipoUsuario == 'atleta' ? 'incompleto' : 'ativo',
+          'status': tipoUsuario == 'atleta' ? 'incompleto' : 'inativo',
           'senha_temp': senhaTemp,
         });
 

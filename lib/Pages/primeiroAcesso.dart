@@ -58,11 +58,49 @@ class _PrimeiroAcessoState extends State<PrimeiroAcesso> {
       } catch (e) {}
     }
 
-    Future<void> finalizaCadastro(String novaSenha, String comparaSenha) async {
+    Future<void> finalizaCadastro(
+      String email,
+      String novaSenha,
+      String comparaSenha,
+    ) async {
       if (novaSenha == comparaSenha) {
-        print("igual");
+        print("As senhas são iguais");
+
+        CollectionReference preCadastroCollection =
+            FirebaseFirestore.instance.collection('pre_cadastro');
+        CollectionReference cadastroFinalizadoCollection =
+            FirebaseFirestore.instance.collection('cadastro_finalizado');
+
+        try {
+          QuerySnapshot querySnapshot = await preCadastroCollection
+              .where('email', isEqualTo: email)
+              .get();
+
+          if (querySnapshot.docs.isNotEmpty) {
+            DocumentSnapshot userSnapshot = querySnapshot.docs.first;
+            Map<String, dynamic> userData =
+                userSnapshot.data() as Map<String, dynamic>;
+
+            String tipoUsuario = userData['tipoUsuario'];
+            String nome = userData['nome'];
+
+            await cadastroFinalizadoCollection.add({
+              'nome': nome,
+              'email': email,
+              'tipo_usuario': tipoUsuario,
+              'status': 'ativo',
+              'senhaCadastrada': novaSenha
+            });
+
+            print('Informações do usuário: $userData');
+          } else {
+            print('Usuário não encontrado');
+          }
+        } catch (e) {
+          print('Erro ao buscar ou cadastrar usuário: $e');
+        }
       } else {
-        print("diferente");
+        print("As senhas são diferentes");
       }
     }
 
@@ -288,7 +326,9 @@ class _PrimeiroAcessoState extends State<PrimeiroAcesso> {
                                 largura: 0.95,
                                 labelText: 'Finalizar Cadastro',
                                 onPressed: () {
-                                  finalizaCadastro(senhaFinalController.text,
+                                  finalizaCadastro(
+                                      emailController.text,
+                                      senhaFinalController.text,
                                       comparaSenhaFinalController.text);
                                 },
                               ),
