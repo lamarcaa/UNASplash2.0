@@ -4,8 +4,16 @@ flutter pub add flutter_speed_dial
 flutter pub add validatorless
 
 status
+inativo = ainda nao fez o primeiro acesso
+aguardando = fez o primeiro acesso mas ainda não logou
+ativo = usuario ja logou
+
+<br>
+
 pendente = atleta fez seu proprio cadastro mas o treinador nao validou
-ativo = usuario ja fez o primeiro login
-inativo = ainda nao fez o primeiro login
+ativo = treinador validou
+
+<br>
+
 excluido = usuario excluido
 incompleto = adm criou mas treinador ou atleta ainda nao finalizou

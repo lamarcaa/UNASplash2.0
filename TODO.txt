@@ -1,0 +1,16 @@
+= tratar o primeiro acesso (pode colocar quantos quiser na nova colecao)
+
+= enviar 2 emails
+
+= tratar erros com snackbartop
+
+= botao secundario no login
+
+= cadastrar treino no firebase
+
+= background do login
+
+= alterar senha - bottom sheet
+
+= ver perfil usuario
+

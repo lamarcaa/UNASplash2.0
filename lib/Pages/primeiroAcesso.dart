@@ -88,7 +88,7 @@ class _PrimeiroAcessoState extends State<PrimeiroAcesso> {
               'nome': nome,
               'email': email,
               'tipo_usuario': tipoUsuario,
-              'status': 'ativo',
+              'status': 'aguardando',
               'senhaCadastrada': novaSenha
             });
 

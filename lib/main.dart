@@ -25,80 +25,113 @@ class MyApp extends StatelessWidget {
   TextEditingController emailController = TextEditingController();
   TextEditingController senhaController = TextEditingController();
 
-  MyApp({super.key});
-
   Future<void> verificaLogin(
       BuildContext context, String email, String senha) async {
-    if (email.isEmpty || senha.isEmpty) {
-      print("Digite algo");
-      return;
-    }
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('cadastro_finalizado')
+        .where('email', isEqualTo: email)
+        .where('senhaCadastrada', isEqualTo: senha)
+        .get();
 
-    try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('cadastro_finalizado')
-          .where('email', isEqualTo: email)
-          .where('senhaCadastrada', isEqualTo: senha)
-          .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      DocumentSnapshot userSnapshot = querySnapshot.docs.first;
+      Map<String, dynamic> userData =
+          userSnapshot.data() as Map<String, dynamic>;
 
-      if (querySnapshot.docs.isNotEmpty) {
-        DocumentSnapshot userSnapshot = querySnapshot.docs.first;
-        Map<String, dynamic> userData =
-            userSnapshot.data() as Map<String, dynamic>;
+      String senhaUsuario = userData['senhaCadastrada'];
+      String emailUsuario = userData['email'];
+      String statusUsuario = userData['status'];
+      String tipoUsuario = userData['tipo_usuario'];
 
-        String senhaUsuario = userData['senhaCadastrada'];
-        String emailUsuario = userData['email'];
-
-        if (senhaUsuario == senha && emailUsuario == email) {
-          try {
-            UserCredential userCredential =
-                await FirebaseAuth.instance.createUserWithEmailAndPassword(
-              email: email,
-              password: senha,
-            );
-
-            User? user = userCredential.user;
-            print('Usuário criado com UID: ${user?.uid}');
-          } catch (e) {
-            print(
-                'Erro durante a criação do usuário no Firebase Authentication: $e');
-          }
-        } else {
-          print('Credenciais inválidas');
+      if (senhaUsuario == senha && emailUsuario == email) {
+        switch (statusUsuario) {
+          case 'aguardando':
+            mudaStatus(emailUsuario, senhaUsuario);
+            break;
+          case 'ativo':
+            autenticaUsuario(email, senha, tipoUsuario);
+            break;
         }
       } else {
-        print('Usuário não encontrado');
+        print('email e senha nao bateu');
       }
-    } catch (e) {
-      print('Erro durante a verificação no Firestore: $e');
+    } else {
+      print('n achou o doc');
     }
   }
 
-  void redirectToPage(BuildContext context, String tipoUsuario) {
+  Future<void> mudaStatus(String emailUsuario, String senhaUsuario) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('cadastro_finalizado')
+        .where('email', isEqualTo: emailUsuario)
+        .where('senhaCadastrada', isEqualTo: senhaUsuario)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      DocumentSnapshot userSnapshot = querySnapshot.docs.first;
+
+      Map<String, dynamic> userData =
+          userSnapshot.data() as Map<String, dynamic>;
+
+      String tipoUsuario = userData['tipo_usuario'];
+      String idDoc = userSnapshot.id;
+
+      await FirebaseFirestore.instance
+          .collection('cadastro_finalizado')
+          .doc(idDoc)
+          .update({'status': 'ativo'});
+
+      cadastraAutentication(emailUsuario, senhaUsuario, tipoUsuario);
+    } else {
+      print('nao encontrou o doc');
+    }
+  }
+
+  Future<void> cadastraAutentication(
+      String email, String senha, String tipoUsuario) async {
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: senha,
+      );
+
+      User? user = userCredential.user;
+      print('usuario criado');
+      redireciona(tipoUsuario);
+    } catch (e) {
+      print('usuario n criou ${e}');
+    }
+  }
+
+  void redireciona(String tipoUsuario) {
     switch (tipoUsuario) {
       case 'administrador':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const AdmPage()),
-        );
+        print('tipo = $tipoUsuario');
         break;
       case 'treinador':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const TreinadorPage()),
-        );
+        print('tipo = $tipoUsuario');
         break;
       case 'atleta':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const AtletaPage()),
-        );
+        print('tipo = $tipoUsuario');
         break;
+      default:
     }
   }
 
-  Future<void> primeiroAcesso(
-      BuildContext context, String email, String senha) async {}
+  Future<void> autenticaUsuario(
+      String email, String senha, String tipoUsuario) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: senha,
+      );
+
+      redireciona(tipoUsuario);
+    } catch (e) {
+      print('Erro ao autenticar usuário: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
