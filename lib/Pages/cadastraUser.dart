@@ -7,6 +7,7 @@ import 'package:desafio/Components/btnPrincipal.dart';
 import 'package:desafio/Components/dropdown.dart';
 import 'package:desafio/Components/textField.dart';
 import 'package:desafio/firebase_options.dart';
+import 'package:desafio/helper/email.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -46,33 +47,6 @@ class _CadastraUserState extends State<CadastraUser> {
       return senhaTemp;
     }
 
-    void enviaEmail(String name, String email) async {
-      final serviceId = 'service_9vsolgp';
-      final templateId = 'template_96loq14';
-      final userId = '-wM326OCudF4bXuqT';
-
-      final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
-      var subject;
-      var message;
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application.json',
-        },
-        body: json.encode({
-          'service_id': serviceId,
-          'template_id': templateId,
-          'user_id': userId,
-          'template_params': {
-            'user_name': name,
-            'user_email': email,
-            'user_subject': subject,
-            'user_message': message,
-          }
-        }),
-      );
-    }
-
     Future<void> cadastrarUsuario(String tipoUsuario, String nome, String email,
         BuildContext context) async {
       var senhaTemp = geraNumeroAleatorio();
@@ -96,29 +70,50 @@ class _CadastraUserState extends State<CadastraUser> {
         return;
       }
 
-      try {
-        await FirebaseFirestore.instance.collection('pre_cadastro').doc().set({
-          'email': email,
-          'nome': nome,
-          'tipoUsuario': tipoUsuario,
-          'status': tipoUsuario == 'atleta' ? 'incompleto' : 'inativo',
-          'senha_temp': senhaTemp,
-        });
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('pre_cadastro')
+          .where('email', isEqualTo: email)
+          .get();
 
-        enviaEmail();
+      if (querySnapshot.docs.isEmpty) {
+        try {
+          await FirebaseFirestore.instance
+              .collection('pre_cadastro')
+              .doc()
+              .set({
+            'email': email,
+            'nome': nome,
+            'tipoUsuario': tipoUsuario,
+            'status': tipoUsuario == 'atleta' ? 'incompleto' : 'inativo',
+            'senha_temp': senhaTemp,
+          });
 
-        Navigator.pop(context);
+          enviaEmail(
+              nome,
+              email,
+              'BEM VINDO ao UNASplash, $nome! Seu usuário foi criado e agora você já pode fazer o primeiro acesso. Sua senha temporária é: $senhaTemp',
+              'UNASPLASH - Pré cadastro criado');
 
+          Navigator.pop(context);
+
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.success(
+              message: "Usuário criado com sucesso!",
+            ),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Nome ou email inválidos"),
+            ),
+          );
+        }
+      } else {
         showTopSnackBar(
           Overlay.of(context),
-          const CustomSnackBar.success(
-            message: "Usuário criado com sucesso!",
-          ),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Nome ou email inválidos"),
+          const CustomSnackBar.error(
+            message: "Usuário já foi cadastrado",
           ),
         );
       }
