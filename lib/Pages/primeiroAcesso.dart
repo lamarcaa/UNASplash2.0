@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,13 +9,15 @@ import 'package:desafio/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const PrimeiroAcesso());
+  runApp(MaterialApp(home: PrimeiroAcesso()));
 }
 
 class PrimeiroAcesso extends StatefulWidget {
@@ -38,22 +41,58 @@ class _PrimeiroAcessoState extends State<PrimeiroAcesso> {
     print("chegou");
 
     Future<void> comparaUser(String email, String tempSenha) async {
-      try {
-        CollectionReference preCadastroCollection =
-            FirebaseFirestore.instance.collection('pre_cadastro');
+      if (email.isEmpty && tempSenha.isEmpty) {
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.info(
+            message: 'Digite suas credenciais',
+          ),
+        );
+        exit(0);
+      }
 
-        QuerySnapshot querySnapshot = await preCadastroCollection
+      CollectionReference cadastroFinalizadoCollection =
+          FirebaseFirestore.instance.collection('cadastro_finalizado');
+
+      try {
+        QuerySnapshot querySnapshot = await cadastroFinalizadoCollection
             .where('email', isEqualTo: email)
-            .where('senha_temp', isEqualTo: tempSenha)
             .get();
 
-        if (querySnapshot.docs.isNotEmpty) {
-          setState(() {
-            controlaBtn = true;
-          });
-          print("encontrou");
+        if (querySnapshot.docs.isEmpty) {
+          try {
+            CollectionReference preCadastroCollection =
+                FirebaseFirestore.instance.collection('pre_cadastro');
+
+            QuerySnapshot querySnapshot = await preCadastroCollection
+                .where('email', isEqualTo: email)
+                .where('senha_temp', isEqualTo: tempSenha)
+                .get();
+
+            if (querySnapshot.docs.isNotEmpty) {
+              setState(() {
+                controlaBtn = true;
+              });
+              print("encontrou");
+            } else {
+              showTopSnackBar(
+                Overlay.of(context),
+                const CustomSnackBar.error(
+                  message: 'Email ou senha incorretos',
+                ),
+              );
+            }
+          } catch (e) {
+            print(e);
+          }
         } else {
-          print("n ecntontrou");
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.error(
+              message: 'Usuário já realizou o primeiro acesso',
+            ),
+          );
+          exit(0);
         }
       } catch (e) {}
     }
@@ -66,39 +105,57 @@ class _PrimeiroAcessoState extends State<PrimeiroAcesso> {
       if (novaSenha == comparaSenha) {
         print("As senhas são iguais");
 
-        CollectionReference preCadastroCollection =
-            FirebaseFirestore.instance.collection('pre_cadastro');
         CollectionReference cadastroFinalizadoCollection =
             FirebaseFirestore.instance.collection('cadastro_finalizado');
 
         try {
-          QuerySnapshot querySnapshot = await preCadastroCollection
+          QuerySnapshot querySnapshot = await cadastroFinalizadoCollection
               .where('email', isEqualTo: email)
               .get();
 
-          if (querySnapshot.docs.isNotEmpty) {
-            DocumentSnapshot userSnapshot = querySnapshot.docs.first;
-            Map<String, dynamic> userData =
-                userSnapshot.data() as Map<String, dynamic>;
+          if (querySnapshot.docs.isEmpty) {
+            try {
+              CollectionReference preCadastroCollection =
+                  FirebaseFirestore.instance.collection('pre_cadastro');
 
-            String tipoUsuario = userData['tipoUsuario'];
-            String nome = userData['nome'];
+              QuerySnapshot querySnapshot = await preCadastroCollection
+                  .where('email', isEqualTo: email)
+                  .get();
 
-            await cadastroFinalizadoCollection.add({
-              'nome': nome,
-              'email': email,
-              'tipo_usuario': tipoUsuario,
-              'status': 'aguardando',
-              'senhaCadastrada': novaSenha
-            });
+              if (querySnapshot.docs.isNotEmpty) {
+                DocumentSnapshot userSnapshot = querySnapshot.docs.first;
+                Map<String, dynamic> userData =
+                    userSnapshot.data() as Map<String, dynamic>;
 
-            print('Informações do usuário: $userData');
+                String tipoUsuario = userData['tipoUsuario'];
+                String nome = userData['nome'];
+
+                await cadastroFinalizadoCollection.add({
+                  'nome': nome,
+                  'email': email,
+                  'tipo_usuario': tipoUsuario,
+                  'status': 'aguardando',
+                  'senhaCadastrada': novaSenha
+                });
+
+                Navigator.pop(context);
+
+                showTopSnackBar(
+                  Overlay.of(context),
+                  const CustomSnackBar.success(
+                    message: 'Senha cadastrada, você já pode logar',
+                  ),
+                );
+              } else {
+                print('Usuário não encontrado');
+              }
+            } catch (e) {
+              print('Erro ao buscar ou cadastrar usuário: $e');
+            }
           } else {
-            print('Usuário não encontrado');
+            print('usuario fez primeiro acesso');
           }
-        } catch (e) {
-          print('Erro ao buscar ou cadastrar usuário: $e');
-        }
+        } catch (e) {}
       } else {
         print("As senhas são diferentes");
       }

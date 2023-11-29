@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:html';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,13 +10,16 @@ import 'package:desafio/firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
+import 'package:http/http.dart' as http;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const CadastraUser());
+  runApp(MaterialApp(home: CadastraUser()));
 }
 
 class CadastraUser extends StatefulWidget {
@@ -31,17 +36,65 @@ class _CadastraUserState extends State<CadastraUser> {
 
   @override
   Widget build(BuildContext context) {
-    print("chegou");
-
     String usuarioSelecionado = 'administrador';
     List<String> op = ['administrador', 'treinador', 'atleta'];
 
-    Future<void> cadastrarUsuario(String tipoUsuario, String nome, String email,
-        BuildContext context) async {
+    String geraNumeroAleatorio() {
       Random random = Random();
       int numeroAleatorio = random.nextInt(900) + 100;
       String senhaTemp = 'unaerp$numeroAleatorio';
-      print(senhaTemp);
+      return senhaTemp;
+    }
+
+    void enviaEmail(String name, String email) async {
+      final serviceId = 'service_9vsolgp';
+      final templateId = 'template_96loq14';
+      final userId = '-wM326OCudF4bXuqT';
+
+      final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
+      var subject;
+      var message;
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application.json',
+        },
+        body: json.encode({
+          'service_id': serviceId,
+          'template_id': templateId,
+          'user_id': userId,
+          'template_params': {
+            'user_name': name,
+            'user_email': email,
+            'user_subject': subject,
+            'user_message': message,
+          }
+        }),
+      );
+    }
+
+    Future<void> cadastrarUsuario(String tipoUsuario, String nome, String email,
+        BuildContext context) async {
+      var senhaTemp = geraNumeroAleatorio();
+
+      RegExp regex = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
+      if (nome.isEmpty || email.isEmpty) {
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.info(
+            message: 'Digite as credenciais',
+          ),
+        );
+        return;
+      } else if (!regex.hasMatch(email)) {
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.error(
+            message: 'Email inválido',
+          ),
+        );
+        return;
+      }
 
       try {
         await FirebaseFirestore.instance.collection('pre_cadastro').doc().set({
@@ -52,15 +105,22 @@ class _CadastraUserState extends State<CadastraUser> {
           'senha_temp': senhaTemp,
         });
 
-        print("foi");
+        enviaEmail();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("$nome cadastrado com sucesso!"),
+        Navigator.pop(context);
+
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.success(
+            message: "Usuário criado com sucesso!",
           ),
         );
       } catch (e) {
-        print('n foi: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Nome ou email inválidos"),
+          ),
+        );
       }
     }
 

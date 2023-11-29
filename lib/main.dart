@@ -1,4 +1,9 @@
+import 'dart:io';
+import 'dart:js';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:desafio/Components/botaoSecundario.dart';
+import 'package:desafio/Components/botaoVazado.dart';
 import 'package:desafio/Pages/atleta.dart';
 import 'package:desafio/Pages/primeiroAcesso.dart';
 import 'package:desafio/Pages/treinador.dart';
@@ -18,7 +23,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MyApp());
+  runApp(MaterialApp(home: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -27,6 +32,17 @@ class MyApp extends StatelessWidget {
 
   Future<void> verificaLogin(
       BuildContext context, String email, String senha) async {
+    if (email.isEmpty || senha.isEmpty) {
+      showTopSnackBar(
+        Overlay.of(context),
+        const CustomSnackBar.error(
+          message: 'Digite suas credenciais para logar',
+        ),
+      );
+
+      exit(0);
+    }
+
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('cadastro_finalizado')
         .where('email', isEqualTo: email)
@@ -46,21 +62,27 @@ class MyApp extends StatelessWidget {
       if (senhaUsuario == senha && emailUsuario == email) {
         switch (statusUsuario) {
           case 'aguardando':
-            mudaStatus(emailUsuario, senhaUsuario);
+            mudaStatus(emailUsuario, senhaUsuario, context);
             break;
           case 'ativo':
-            autenticaUsuario(email, senha, tipoUsuario);
+            autenticaUsuario(context, email, senha, tipoUsuario);
             break;
         }
       } else {
         print('email e senha nao bateu');
       }
     } else {
-      print('n achou o doc');
+      showTopSnackBar(
+        Overlay.of(context),
+        const CustomSnackBar.error(
+          message: 'Usuário ou senha incorretos',
+        ),
+      );
     }
   }
 
-  Future<void> mudaStatus(String emailUsuario, String senhaUsuario) async {
+  Future<void> mudaStatus(
+      String emailUsuario, String senhaUsuario, BuildContext context) async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('cadastro_finalizado')
         .where('email', isEqualTo: emailUsuario)
@@ -81,14 +103,14 @@ class MyApp extends StatelessWidget {
           .doc(idDoc)
           .update({'status': 'ativo'});
 
-      cadastraAutentication(emailUsuario, senhaUsuario, tipoUsuario);
+      cadastraAutentication(emailUsuario, senhaUsuario, tipoUsuario, context);
     } else {
       print('nao encontrou o doc');
     }
   }
 
-  Future<void> cadastraAutentication(
-      String email, String senha, String tipoUsuario) async {
+  Future<void> cadastraAutentication(String email, String senha,
+      String tipoUsuario, BuildContext context) async {
     try {
       UserCredential userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -98,36 +120,45 @@ class MyApp extends StatelessWidget {
 
       User? user = userCredential.user;
       print('usuario criado');
-      redireciona(tipoUsuario);
+      redireciona(tipoUsuario, context);
     } catch (e) {
       print('usuario n criou ${e}');
     }
   }
 
-  void redireciona(String tipoUsuario) {
+  void redireciona(String tipoUsuario, BuildContext context) {
     switch (tipoUsuario) {
       case 'administrador':
-        print('tipo = $tipoUsuario');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AdmPage()),
+        );
         break;
       case 'treinador':
-        print('tipo = $tipoUsuario');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => TreinadorPage()),
+        );
         break;
       case 'atleta':
-        print('tipo = $tipoUsuario');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AtletaPage()),
+        );
         break;
       default:
     }
   }
 
-  Future<void> autenticaUsuario(
-      String email, String senha, String tipoUsuario) async {
+  Future<void> autenticaUsuario(BuildContext context, String email,
+      String senha, String tipoUsuario) async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: senha,
       );
 
-      redireciona(tipoUsuario);
+      redireciona(tipoUsuario, context);
     } catch (e) {
       print('Erro ao autenticar usuário: $e');
     }
@@ -181,7 +212,24 @@ class MyApp extends StatelessWidget {
                   obscureText: true,
                   controller: senhaController,
                 ),
-                const SizedBox(
+                SizedBox(
+                  height: 20,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 100),
+                  child: InkWell(
+                    onTap: () {},
+                    child: Text(
+                      'Esqueceu sua senha? Clique Aqui!',
+                      style: GoogleFonts.lexendDeca(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
                   height: 20,
                 ),
                 BotaoPrincipal(
@@ -195,7 +243,7 @@ class MyApp extends StatelessWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                BotaoPrincipal(
+                BotaoVazado(
                   labelText: 'Primeiro Acesso',
                   largura: 0.7,
                   onPressed: () {
@@ -205,20 +253,6 @@ class MyApp extends StatelessWidget {
                           builder: (context) => const PrimeiroAcesso()),
                     );
                   },
-                ),
-                Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(0, 20, 0, 0),
-                  child: InkWell(
-                    onTap: () {},
-                    child: const Text(
-                      'Esqueceu sua senha?',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
                 ),
               ],
             ),
