@@ -6,6 +6,7 @@ import 'package:desafio/Components/btnPrincipal.dart';
 import 'package:desafio/Components/dropdown.dart';
 import 'package:desafio/Components/textField.dart';
 import 'package:desafio/firebase_options.dart';
+import 'package:desafio/helper/email.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -134,9 +135,17 @@ class _PrimeiroAcessoState extends State<PrimeiroAcesso> {
                   'nome': nome,
                   'email': email,
                   'tipo_usuario': tipoUsuario,
-                  'status': 'aguardando',
+                  'status':
+                      tipoUsuario == 'atleta' ? 'incompleto' : 'aguardando',
                   'senhaCadastrada': novaSenha
                 });
+
+
+                enviaEmail(
+                    nome,
+                    email,
+                    'PRIMEIRO ACESSO FEITO COM SUCESSO! Parabéns, $nome, agora você já pode logar no aplicativo!',
+                    'UNASPLASH - Primeiro Acesso Realizado');
 
                 Navigator.pop(context);
 

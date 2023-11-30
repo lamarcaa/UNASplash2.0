@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:desafio/Components/botaoSecundario.dart';
 import 'package:desafio/Components/botaoVazado.dart';
 import 'package:desafio/Pages/atleta.dart';
+import 'package:desafio/Pages/cadastraAtleta.dart';
 import 'package:desafio/Pages/primeiroAcesso.dart';
 import 'package:desafio/Pages/treinador.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -39,7 +40,6 @@ class MyApp extends StatelessWidget {
           message: 'Digite suas credenciais para logar',
         ),
       );
-
       exit(0);
     }
 
@@ -58,6 +58,7 @@ class MyApp extends StatelessWidget {
       String emailUsuario = userData['email'];
       String statusUsuario = userData['status'];
       String tipoUsuario = userData['tipo_usuario'];
+      String nomeUsuario = userData['nome'];
 
       if (senhaUsuario == senha && emailUsuario == email) {
         switch (statusUsuario) {
@@ -66,6 +67,9 @@ class MyApp extends StatelessWidget {
             break;
           case 'ativo':
             autenticaUsuario(context, email, senha, tipoUsuario);
+            break;
+          case 'incompleto':
+            verificaAtleta(context, email, tipoUsuario, nomeUsuario);
             break;
         }
       } else {
@@ -79,6 +83,19 @@ class MyApp extends StatelessWidget {
         ),
       );
     }
+  }
+
+  Future<void> verificaAtleta(BuildContext context, String email,
+      String tipoUsuario, String nome) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => CadastraAtleta(
+                titulo: 'Bem-Vindo!',
+                texto:
+                    'É um prazer ter você aqui, $nome! Vi que você ainda não terminou seu cadastro... Assim que finalizar suas informações você já poderá utilizar o aplicativo',
+              )),
+    );
   }
 
   Future<void> mudaStatus(
@@ -111,6 +128,7 @@ class MyApp extends StatelessWidget {
 
   Future<void> cadastraAutentication(String email, String senha,
       String tipoUsuario, BuildContext context) async {
+    print('teste');
     try {
       UserCredential userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -120,13 +138,14 @@ class MyApp extends StatelessWidget {
 
       User? user = userCredential.user;
       print('usuario criado');
-      redireciona(tipoUsuario, context);
+      redireciona(tipoUsuario, context, email);
     } catch (e) {
       print('usuario n criou ${e}');
     }
   }
 
-  void redireciona(String tipoUsuario, BuildContext context) {
+  Future<void> redireciona(String tipoUsuario, BuildContext context,
+      [String? email]) async {
     switch (tipoUsuario) {
       case 'administrador':
         Navigator.push(

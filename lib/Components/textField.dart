@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class TextFieldPadrao extends StatelessWidget {
@@ -7,6 +8,9 @@ class TextFieldPadrao extends StatelessWidget {
   final bool obscureText;
   final TextEditingController controller;
   final String? Function(String?)? validator;
+  final List<TextInputFormatter>? inputFormatters;
+  final AutovalidateMode? autovalidateMode; // Adicionando autovalidateMode
+  final void Function(String)? onChanged; // Adicionando onChanged
 
   const TextFieldPadrao({
     Key? key,
@@ -15,6 +19,9 @@ class TextFieldPadrao extends StatelessWidget {
     required this.obscureText,
     required this.controller,
     this.validator,
+    this.inputFormatters,
+    this.autovalidateMode, // Parâmetro opcional
+    this.onChanged, // Parâmetro opcional
   }) : super(key: key);
 
   @override
@@ -25,6 +32,10 @@ class TextFieldPadrao extends StatelessWidget {
         obscureText: obscureText,
         controller: controller,
         validator: validator,
+        inputFormatters: inputFormatters,
+        autovalidateMode:
+            autovalidateMode, // Passando autovalidateMode para TextFormField
+        onChanged: onChanged, // Passando onChanged para TextFormField
         decoration: InputDecoration(
           labelText: labelText,
           labelStyle: GoogleFonts.lexendDeca(

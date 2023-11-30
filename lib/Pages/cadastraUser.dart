@@ -84,15 +84,15 @@ class _CadastraUserState extends State<CadastraUser> {
             'email': email,
             'nome': nome,
             'tipoUsuario': tipoUsuario,
-            'status': tipoUsuario == 'atleta' ? 'incompleto' : 'inativo',
+            'status': 'inativo',
             'senha_temp': senhaTemp,
           });
 
           enviaEmail(
               nome,
               email,
-              'BEM VINDO ao UNASplash, $nome! Seu usuário foi criado e agora você já pode fazer o primeiro acesso. Sua senha temporária é: $senhaTemp',
-              'UNASPLASH - Pré cadastro criado');
+              'BEM VINDO ao UNASplash, $nome! Seu usuário foi criado. Para você poder logar no aplicativo é necessário fazer o Primeiro Acesso na tela de login! Sua senha temporária é: $senhaTemp',
+              'UNASPLASH - Pré Cadastro Criado');
 
           Navigator.pop(context);
 

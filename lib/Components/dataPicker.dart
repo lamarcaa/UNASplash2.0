@@ -35,23 +35,23 @@ class _DataPickerState extends State<DataPicker> {
     return InkWell(
       onTap: () => _selectDate(context),
       child: Container(
-        width: MediaQuery.of(context).size.width * 1,
+        width: MediaQuery.of(context).size.width * 0.95,
         height: 50,
         decoration: BoxDecoration(
           border: Border.all(
-            color: Colors.grey, // Cor da borda
-            width: 1.0, // Largura da borda
+            color: Colors.black54,
+            width: 2.0,
           ),
-          borderRadius: BorderRadius.circular(10.0), // Raio do border
-          color: Colors.white,
+          borderRadius: BorderRadius.circular(10.0),
+          color: Colors.transparent,
         ),
         child: Center(
           child: Text(
             'Data da Avaliação',
             style: GoogleFonts.lexendDeca(
               fontSize: 18,
-              fontWeight: FontWeight.w300,
-              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+              color: Colors.black54,
             ),
           ),
         ),
