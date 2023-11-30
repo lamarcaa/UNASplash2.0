@@ -79,7 +79,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
   final TextEditingController telEmergenciaController = TextEditingController();
   final TextEditingController cepController = TextEditingController();
   TextEditingController ruaController = TextEditingController();
-  final TextEditingController numeroController = TextEditingController();
+  final TextEditingController estadoController = TextEditingController();
   TextEditingController bairroController = TextEditingController();
   TextEditingController cidadeController = TextEditingController();
   final TextEditingController nomeMaeController = TextEditingController();
@@ -143,11 +143,31 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
     //   }
     // }
 
-    Future<void> buscarCep() async {
-      final postmonSearchCep = PostmonSearchCep();
-      final infoCepJSON =
-          await postmonSearchCep.searchInfoByCep(cep: '14315706');
-      print(infoCepJSON);
+    Future<void> buscarCep(String cep) async {
+      print(cep);
+
+      String url = "https://viacep.com.br/ws/$cep/json/";
+
+      try {
+        final response = await http.get(Uri.parse(url));
+
+        if (response.statusCode == 200) {
+          Map<String, dynamic> dados = json.decode(response.body);
+
+          print(dados);
+
+          String cidade = dados["localidade"];
+
+          bairroController.text = dados["bairro"];
+          ruaController.text = dados["logradouro"];
+          estadoController.text = dados["uf"];
+          cidadeController.text = dados["localidade"];
+        } else {
+          print("Erro na solicitação HTTP: ${response.statusCode}");
+        }
+      } catch (e) {
+        print("Erro durante a solicitação HTTP: $e");
+      }
     }
 
     return MaterialApp(
@@ -706,7 +726,9 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   obscureText: false,
                                   controller: cepController,
                                   onChanged: (teste) {
-                                    buscarCep();
+                                    if (cepController.text.length == 8) {
+                                      buscarCep(cepController.text);
+                                    }
                                   },
                                 ),
                                 Padding(
@@ -743,6 +765,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   obscureText: false,
                                   controller: ruaController,
                                 ),
+
                                 Padding(
                                   padding:
                                       const EdgeInsets.fromLTRB(20, 20, 0, 10),
@@ -752,40 +775,6 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                         children: [
                                           TextSpan(
                                             text: '3. ',
-                                            style: GoogleFonts.lexendDeca(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.black54,
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text: 'Numero do atleta',
-                                            style: GoogleFonts.lexendDeca(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w300,
-                                              color: Colors.black54,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ]),
-                                ),
-                                TextFieldPadrao(
-                                  labelText: 'Numero',
-                                  largura: 0.95,
-                                  obscureText: false,
-                                  controller: numeroController,
-                                ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(20, 20, 0, 10),
-                                  child: Row(children: [
-                                    RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: '4. ',
                                             style: GoogleFonts.lexendDeca(
                                               fontSize: 18,
                                               fontWeight: FontWeight.w700,
@@ -844,6 +833,40 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   largura: 0.95,
                                   obscureText: false,
                                   controller: cidadeController,
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(20, 20, 0, 10),
+                                  child: Row(children: [
+                                    RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: '6. ',
+                                            style: GoogleFonts.lexendDeca(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: 'Estado do atleta',
+                                            style: GoogleFonts.lexendDeca(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w300,
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ]),
+                                ),
+                                TextFieldPadrao(
+                                  labelText: 'Estado',
+                                  largura: 0.95,
+                                  obscureText: false,
+                                  controller: estadoController,
                                 ),
                                 const SizedBox(
                                   height: 50,
