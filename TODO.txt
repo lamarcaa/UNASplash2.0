@@ -15,3 +15,5 @@
 = ver perfil usuario
 
 = tratar formulários
+
+= desautenticar usuario
