@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:search_cep/search_cep.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
@@ -22,9 +23,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const CadastraAtleta(
-    titulo: 'teste',
-    texto: 'teste',
+
+  runApp(MaterialApp(
+    home: CadastraAtleta(
+      titulo: 'teste',
+      texto: 'teste',
+    ),
   ));
 }
 
@@ -105,10 +109,24 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
   bool telNao = true;
   bool validadeEmail = false;
 
+  bool btnAtestado = false;
+  bool btnRg = false;
+  bool btnCpf = false;
+  bool btnResid = false;
+  bool btnFoto = false;
+  bool btnRegulamento = false;
+
   String tipoDeUsuario = 'Administrador';
   String sexoDoUsuario = 'Masculino';
 
   final _formKey = GlobalKey<FormState>();
+
+  XFile? atestado;
+  XFile? fotoRg;
+  XFile? fotoCpf;
+  XFile? comproResid;
+  XFile? foto;
+  XFile? regAssinado;
 
   @override
   Widget build(BuildContext context) {
@@ -143,6 +161,27 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
     //   }
     // }
 
+    void validarCampos() {
+      List<TextEditingController> controladores = [
+        nomeController,
+        emailController,
+        rgController,
+        cpfController,
+        telOutroController,
+      ];
+
+      for (TextEditingController controller in controladores) {
+        if (controller.text.isEmpty) {
+          print('campo vazio');
+          // return false;
+        }
+      }
+
+      print('campo todos preenchidos');
+      // Todos os campos foram preenchidos
+      // return true;
+    }
+
     Future<void> buscarCep(String cep) async {
       print(cep);
 
@@ -168,6 +207,116 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
       } catch (e) {
         print("Erro durante a solicitação HTTP: $e");
       }
+    }
+
+    void selecionarFoto(BuildContext context, String tipo, String campo) async {
+      final ImagePicker picker = ImagePicker();
+
+      XFile? imagemSelecionada;
+
+      if (tipo == 'camera') {
+        imagemSelecionada = await picker.pickImage(
+          source: ImageSource.camera,
+        );
+      } else {
+        imagemSelecionada = await picker.pickImage(
+          source: ImageSource.gallery,
+        );
+      }
+
+      if (imagemSelecionada != null) {
+        switch (campo) {
+          case 'atestado':
+            setState(() {
+              atestado = imagemSelecionada;
+              btnAtestado = !btnAtestado;
+            });
+            break;
+          case 'rg':
+            fotoRg = imagemSelecionada;
+            setState(() {
+              btnRg = !btnRg;
+            });
+            break;
+          case 'cpf':
+            fotoCpf = imagemSelecionada;
+            setState(() {
+              btnCpf = !btnCpf;
+            });
+            break;
+          case 'resid':
+            comproResid = imagemSelecionada;
+            setState(() {
+              btnResid = !btnResid;
+            });
+            break;
+          case 'foto':
+            foto = imagemSelecionada;
+            setState(() {
+              btnFoto = !btnFoto;
+            });
+            break;
+          case 'regulamento':
+            regAssinado = imagemSelecionada;
+            setState(() {
+              btnRegulamento = !btnRegulamento;
+            });
+            break;
+          default:
+            break;
+        }
+
+        String extensaoOriginal = imagemSelecionada.path.split('.').last;
+        String nomeArquivo = 'imagem.$extensaoOriginal';
+
+        await imagemSelecionada.saveTo(nomeArquivo);
+
+        print('Imagem salva com sucesso como $nomeArquivo');
+      }
+    }
+
+    void mostrarBottomSheet(BuildContext context, String campo) {
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return Container(
+            child: Wrap(
+              children: <Widget>[
+                ListTile(
+                  leading: Icon(Icons.camera_alt_rounded),
+                  title: Text(
+                    'Câmera',
+                    style: GoogleFonts.lexendDeca(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    selecionarFoto(context, 'camera', campo);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.image),
+                  title: Text(
+                    'Galeria',
+                    style: GoogleFonts.lexendDeca(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    selecionarFoto(context, 'galeria', campo);
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      );
     }
 
     return MaterialApp(
@@ -895,7 +1044,9 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                 Padding(
                                   padding: const EdgeInsets.all(10),
                                   child: InkWell(
-                                    onTap: () {},
+                                    onTap: () {
+                                      mostrarBottomSheet(context, 'atestado');
+                                    },
                                     child: Container(
                                       decoration: const BoxDecoration(
                                         color: Colors.white,
@@ -908,9 +1059,19 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                           alignment: Alignment.centerLeft,
                                           child: Row(
                                             children: [
-                                              const Icon(
-                                                Icons.image,
-                                                color: Colors.black45,
+                                              Visibility(
+                                                visible: !btnAtestado,
+                                                child: const Icon(
+                                                  Icons.image,
+                                                  color: Colors.black45,
+                                                ),
+                                              ),
+                                              Visibility(
+                                                visible: btnAtestado,
+                                                child: const Icon(
+                                                  Icons.image,
+                                                  color: Colors.green,
+                                                ),
                                               ),
                                               const SizedBox(
                                                 width: 10,
@@ -933,7 +1094,9 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                 Padding(
                                   padding: const EdgeInsets.all(10),
                                   child: InkWell(
-                                    onTap: () {},
+                                    onTap: () {
+                                      mostrarBottomSheet(context, 'rg');
+                                    },
                                     child: Container(
                                       decoration: const BoxDecoration(
                                         color: Colors.white,
@@ -946,9 +1109,19 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                           alignment: Alignment.centerLeft,
                                           child: Row(
                                             children: [
-                                              const Icon(
-                                                Icons.image,
-                                                color: Colors.black45,
+                                              Visibility(
+                                                visible: !btnRg,
+                                                child: const Icon(
+                                                  Icons.image,
+                                                  color: Colors.black45,
+                                                ),
+                                              ),
+                                              Visibility(
+                                                visible: btnRg,
+                                                child: const Icon(
+                                                  Icons.image,
+                                                  color: Colors.green,
+                                                ),
                                               ),
                                               const SizedBox(
                                                 width: 10,
@@ -971,7 +1144,9 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                 Padding(
                                   padding: const EdgeInsets.all(10),
                                   child: InkWell(
-                                    onTap: () {},
+                                    onTap: () {
+                                      mostrarBottomSheet(context, 'cpf');
+                                    },
                                     child: Container(
                                       decoration: const BoxDecoration(
                                         color: Colors.white,
@@ -984,9 +1159,19 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                           alignment: Alignment.centerLeft,
                                           child: Row(
                                             children: [
-                                              const Icon(
-                                                Icons.image,
-                                                color: Colors.black45,
+                                              Visibility(
+                                                visible: !btnCpf,
+                                                child: const Icon(
+                                                  Icons.image,
+                                                  color: Colors.black45,
+                                                ),
+                                              ),
+                                              Visibility(
+                                                visible: btnCpf,
+                                                child: const Icon(
+                                                  Icons.image,
+                                                  color: Colors.green,
+                                                ),
                                               ),
                                               const SizedBox(
                                                 width: 10,
@@ -1009,7 +1194,9 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                 Padding(
                                   padding: const EdgeInsets.all(10),
                                   child: InkWell(
-                                    onTap: () {},
+                                    onTap: () {
+                                      mostrarBottomSheet(context, 'resid');
+                                    },
                                     child: Container(
                                       decoration: const BoxDecoration(
                                         color: Colors.white,
@@ -1022,9 +1209,19 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                           alignment: Alignment.centerLeft,
                                           child: Row(
                                             children: [
-                                              const Icon(
-                                                Icons.image,
-                                                color: Colors.black45,
+                                              Visibility(
+                                                visible: !btnResid,
+                                                child: const Icon(
+                                                  Icons.image,
+                                                  color: Colors.black45,
+                                                ),
+                                              ),
+                                              Visibility(
+                                                visible: btnResid,
+                                                child: const Icon(
+                                                  Icons.image,
+                                                  color: Colors.green,
+                                                ),
                                               ),
                                               const SizedBox(
                                                 width: 10,
@@ -1047,7 +1244,9 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                 Padding(
                                   padding: const EdgeInsets.all(10),
                                   child: InkWell(
-                                    onTap: () {},
+                                    onTap: () {
+                                      mostrarBottomSheet(context, 'foto');
+                                    },
                                     child: Container(
                                       decoration: const BoxDecoration(
                                         color: Colors.white,
@@ -1060,9 +1259,19 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                           alignment: Alignment.centerLeft,
                                           child: Row(
                                             children: [
-                                              const Icon(
-                                                Icons.image,
-                                                color: Colors.black45,
+                                              Visibility(
+                                                visible: !btnFoto,
+                                                child: const Icon(
+                                                  Icons.image,
+                                                  color: Colors.black45,
+                                                ),
+                                              ),
+                                              Visibility(
+                                                visible: btnFoto,
+                                                child: const Icon(
+                                                  Icons.image,
+                                                  color: Colors.green,
+                                                ),
                                               ),
                                               const SizedBox(
                                                 width: 10,
@@ -1085,7 +1294,10 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                 Padding(
                                   padding: const EdgeInsets.all(10),
                                   child: InkWell(
-                                    onTap: () {},
+                                    onTap: () {
+                                      mostrarBottomSheet(
+                                          context, 'regulamento');
+                                    },
                                     child: Container(
                                       decoration: const BoxDecoration(
                                         color: Colors.white,
@@ -1098,9 +1310,19 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                           alignment: Alignment.centerLeft,
                                           child: Row(
                                             children: [
-                                              const Icon(
-                                                Icons.image,
-                                                color: Colors.black45,
+                                              Visibility(
+                                                visible: !btnRegulamento,
+                                                child: const Icon(
+                                                  Icons.image,
+                                                  color: Colors.black45,
+                                                ),
+                                              ),
+                                              Visibility(
+                                                visible: btnRegulamento,
+                                                child: const Icon(
+                                                  Icons.image,
+                                                  color: Colors.green,
+                                                ),
                                               ),
                                               const SizedBox(
                                                 width: 10,
@@ -1688,21 +1910,9 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                 //     largura: 0.95,
                                 //     labelText: 'Cadastrar Usuário',
                                 //     onPressed: () {}),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      if (_formKey.currentState?.validate() ??
-                                          false) {
-                                        print('foi');
-                                        // Faça alguma coisa aqui se a validação for bem-sucedida
-                                      } else {
-                                        print('n foi');
-                                        // Faça alguma coisa aqui se a validação falhar
-                                      }
-                                    });
-                                  },
-                                  child: Text('Submit'),
-                                ),
+                                BotaoPrincipal(
+                                    largura: 0.95,
+                                    labelText: 'Cadastrar Atleta'),
                                 const SizedBox(
                                   height: 50,
                                 ),
