@@ -161,27 +161,6 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
     //   }
     // }
 
-    void validarCampos() {
-      List<TextEditingController> controladores = [
-        nomeController,
-        emailController,
-        rgController,
-        cpfController,
-        telOutroController,
-      ];
-
-      for (TextEditingController controller in controladores) {
-        if (controller.text.isEmpty) {
-          print('campo vazio');
-          // return false;
-        }
-      }
-
-      print('campo todos preenchidos');
-      // Todos os campos foram preenchidos
-      // return true;
-    }
-
     Future<void> buscarCep(String cep) async {
       print(cep);
 
@@ -317,6 +296,67 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
           );
         },
       );
+    }
+
+    void validarCampos() {
+      List<TextEditingController> controladores = [
+        nomeController,
+        emailController,
+        rgController,
+        cpfController,
+        nacionalidadeController,
+        naturalidadeController,
+        telPessoalController,
+        telEmergenciaController,
+        cepController,
+        ruaController,
+        estadoController,
+        bairroController,
+        cidadeController,
+      ];
+
+      bool validaCamposObrigatorios = false;
+      bool validaImagens = false;
+
+      for (TextEditingController controller in controladores) {
+        if (!controller.text.isEmpty) {
+          validaCamposObrigatorios = true;
+        }
+      }
+
+      if (btnAtestado == true &&
+          btnRg == true &&
+          btnCpf == true &&
+          btnResid == true &&
+          btnFoto == true &&
+          btnRegulamento == true) {
+        validaImagens = true;
+      } else {
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.error(
+            message: 'Insira todas as fotos',
+          ),
+        );
+      }
+
+      if (validaCamposObrigatorios == false) {
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.error(
+            message: 'Digite todos os campos obrigatórios',
+          ),
+        );
+      } else if (validaImagens == false) {
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.error(
+            message: 'Você não inseriu todas as fotos',
+          ),
+        );
+      } else {
+        print('todos foram');
+      }
     }
 
     return MaterialApp(
@@ -1398,7 +1438,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   labelText: 'Nome da mãe',
                                   largura: 0.95,
                                   obscureText: false,
-                                  controller: telPessoalController,
+                                  controller: nomeMaeController,
                                 ),
                                 Padding(
                                   padding:
@@ -1432,7 +1472,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   labelText: 'Nome da pai',
                                   largura: 0.95,
                                   obscureText: false,
-                                  controller: telPessoalController,
+                                  controller: nomePaiController,
                                 ),
                                 Padding(
                                   padding:
@@ -1466,7 +1506,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   labelText: 'Clube de origem',
                                   largura: 0.95,
                                   obscureText: false,
-                                  controller: telPessoalController,
+                                  controller: clubeOrigemController,
                                 ),
                                 Padding(
                                   padding:
@@ -1500,7 +1540,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   labelText: 'Local de trabalho',
                                   largura: 0.95,
                                   obscureText: false,
-                                  controller: telPessoalController,
+                                  controller: localTrabalhoController,
                                 ),
                                 Padding(
                                   padding:
@@ -1534,7 +1574,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                   labelText: 'Convênio Médico',
                                   largura: 0.95,
                                   obscureText: false,
-                                  controller: telPessoalController,
+                                  controller: convMedController,
                                 ),
                                 Padding(
                                   padding:
@@ -1844,7 +1884,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                         labelText: 'Telefone residêncial',
                                         largura: 0.95,
                                         obscureText: false,
-                                        controller: telPessoalController,
+                                        controller: telResidController,
                                       ),
                                       const SizedBox(height: 20),
                                     ],
@@ -1858,7 +1898,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                         labelText: 'Telefone do trabalho',
                                         largura: 0.95,
                                         obscureText: false,
-                                        controller: telPessoalController,
+                                        controller: telTrabController,
                                       ),
                                       const SizedBox(height: 20),
                                     ],
@@ -1872,7 +1912,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                         labelText: 'Telefone da mãe',
                                         largura: 0.95,
                                         obscureText: false,
-                                        controller: telPessoalController,
+                                        controller: telMaeController,
                                       ),
                                       const SizedBox(height: 20),
                                     ],
@@ -1886,7 +1926,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                         labelText: 'Telefone do pai',
                                         largura: 0.95,
                                         obscureText: false,
-                                        controller: telPessoalController,
+                                        controller: telPaiController,
                                       ),
                                       const SizedBox(height: 20),
                                     ],
@@ -1900,7 +1940,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                         labelText: 'Outro número de telefone',
                                         largura: 0.95,
                                         obscureText: false,
-                                        controller: telPessoalController,
+                                        controller: telOutroController,
                                       ),
                                       const SizedBox(height: 20),
                                     ],
@@ -1911,8 +1951,12 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                 //     labelText: 'Cadastrar Usuário',
                                 //     onPressed: () {}),
                                 BotaoPrincipal(
-                                    largura: 0.95,
-                                    labelText: 'Cadastrar Atleta'),
+                                  largura: 0.95,
+                                  labelText: 'Cadastrar Atleta',
+                                  onPressed: () {
+                                    validarCampos();
+                                  },
+                                ),
                                 const SizedBox(
                                   height: 50,
                                 ),
