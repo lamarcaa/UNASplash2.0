@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
 
 Future<List<Map<String, dynamic>>> getDocuments(String collectionPath) async {
   final collection = FirebaseFirestore.instance.collection(collectionPath);
-  final querySnapshot = await collection.get();
+  final querySnapshot = await collection.orderBy('nome').get();
   final documents = querySnapshot.docs;
 
   final List<Map<String, dynamic>> dataList = [];
@@ -52,7 +52,7 @@ class AdmPage extends StatefulWidget {
 
 class _AdmPageState extends State<AdmPage> {
   List<Map<String, dynamic>> infoUsuario = [];
-  String userEmail = '';
+  String userEmail = 'g.lamarca@outlook.com';
 
   @override
   void initState() {
@@ -62,7 +62,9 @@ class _AdmPageState extends State<AdmPage> {
   }
 
   Future<void> fetchData() async {
-    final data = await getDocuments('usuarios');
+    final data = await getDocuments('pre_cadastro');
+    data.sort((a, b) => (a['nome'] as String).compareTo(b['nome'] as String));
+
     setState(() {
       infoUsuario = data;
     });
@@ -106,8 +108,7 @@ class _AdmPageState extends State<AdmPage> {
                       builder: (context) => Perfil(
                         nome: usuario['nome'] ?? '',
                         tipoUsuario: usuario['tipoUsuario'] ?? '',
-                        userEmail:
-                            userEmail, // Passe o e-mail como parâmetro para o Perfil
+                        userEmail: userEmail,
                       ),
                     ),
                   );

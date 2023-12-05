@@ -1,10 +1,9 @@
 import 'dart:io';
-import 'dart:js';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:desafio/Components/botaoSecundario.dart';
 import 'package:desafio/Components/botaoVazado.dart';
 import 'package:desafio/Pages/atleta.dart';
+import 'package:desafio/Pages/atletaPendente.dart';
 import 'package:desafio/Pages/cadastraAtleta.dart';
 import 'package:desafio/Pages/primeiroAcesso.dart';
 import 'package:desafio/Pages/treinador.dart';
@@ -71,6 +70,12 @@ class MyApp extends StatelessWidget {
           case 'incompleto':
             verificaAtleta(context, email, tipoUsuario, nomeUsuario);
             break;
+          case 'pendente':
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AtletaPendente()),
+            );
+            break;
         }
       } else {
         print('email e senha nao bateu');
@@ -87,15 +92,34 @@ class MyApp extends StatelessWidget {
 
   Future<void> verificaAtleta(BuildContext context, String email,
       String tipoUsuario, String nome) async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('cadastro_finalizado')
+        .where('email', isEqualTo: email)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      DocumentSnapshot userSnapshot = querySnapshot.docs.first;
+
+      Map<String, dynamic> userData =
+          userSnapshot.data() as Map<String, dynamic>;
+
+      String nomeUsuario = userData['nome'];
+      String emailUsuario = userData['email'];
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
           builder: (context) => CadastraAtleta(
-                titulo: 'Bem-Vindo!',
-                texto:
-                    'É um prazer ter você aqui, $nome! Vi que você ainda não terminou seu cadastro... Assim que finalizar suas informações você já poderá utilizar o aplicativo',
-              )),
-    );
+            titulo: 'Bem-Vindo!',
+            texto:
+                'É um prazer ter você aqui, $nome! Vi que você ainda não terminou seu cadastro... Assim que finalizar suas informações você já poderá utilizar o aplicativo',
+            nomeUsuario: nomeUsuario,
+            emailUsuario: emailUsuario,
+            status: 'pendente',
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> mudaStatus(
@@ -171,16 +195,32 @@ class MyApp extends StatelessWidget {
 
   Future<void> autenticaUsuario(BuildContext context, String email,
       String senha, String tipoUsuario) async {
+    print(email);
+    print(senha);
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: senha,
       );
 
       redireciona(tipoUsuario, context);
     } catch (e) {
-      print('Erro ao autenticar usuário: $e');
+      print('Erro ao cadastrar usuário: $e');
     }
+  }
+
+  void mostrarBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return Container(
+          width: 200,
+          child: Column(
+            children: [Text('Digite seu email:')],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -189,92 +229,108 @@ class MyApp extends StatelessWidget {
       home: Directionality(
         textDirection: TextDirection.ltr,
         child: Scaffold(
-          body: Container(
-            color: Colors.black54,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.network(
-                      'https://i.imgur.com/oX5YSQe.png',
-                      width: 200,
-                      height: 200,
-                      fit: BoxFit.contain,
+          body: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(
+                      'https://i.imgur.com/ba0aEf2.jpg',
                     ),
-                  ],
-                ),
-                Text(
-                  'Bem-vindo de volta, sentimos sua falta!',
-                  style: GoogleFonts.lexendDeca(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w300,
-                    color: Colors.white,
+                    fit: BoxFit.contain,
                   ),
                 ),
-                const SizedBox(
-                  height: 30,
-                ),
-                TextFieldPadrao(
-                  labelText: 'Email',
-                  largura: 0.7,
-                  controller: emailController,
-                  obscureText: false,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                TextFieldPadrao(
-                  labelText: 'Senha',
-                  largura: 0.7,
-                  obscureText: true,
-                  controller: senhaController,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 100),
-                  child: InkWell(
-                    onTap: () {},
-                    child: Text(
-                      'Esqueceu sua senha? Clique Aqui!',
+              ),
+              Container(
+                color: Colors.black54.withOpacity(0.7),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.network(
+                          'https://i.imgur.com/oX5YSQe.png',
+                          width: 200,
+                          height: 200,
+                          fit: BoxFit.contain,
+                        ),
+                      ],
+                    ),
+                    Text(
+                      'Bem-vindo de volta, sentimos sua falta!',
                       style: GoogleFonts.lexendDeca(
-                        fontSize: 15,
+                        fontSize: 20,
                         fontWeight: FontWeight.w300,
                         color: Colors.white,
                       ),
                     ),
-                  ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    TextFieldPadrao(
+                      labelText: 'Email',
+                      largura: 0.7,
+                      controller: emailController,
+                      obscureText: false,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    TextFieldPadrao(
+                      labelText: 'Senha',
+                      largura: 0.7,
+                      obscureText: false,
+                      controller: senhaController,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 100),
+                      child: InkWell(
+                        onTap: () {
+                          mostrarBottomSheet(context);
+                        },
+                        child: Text(
+                          'Esqueceu sua senha? Clique Aqui!',
+                          style: GoogleFonts.lexendDeca(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w300,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    BotaoPrincipal(
+                      labelText: 'Login',
+                      largura: 0.7,
+                      onPressed: () {
+                        verificaLogin(context, emailController.text,
+                            senhaController.text);
+                      },
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    BotaoVazado(
+                      labelText: 'Primeiro Acesso',
+                      largura: 0.7,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const PrimeiroAcesso()),
+                        );
+                      },
+                    ),
+                  ],
                 ),
-                SizedBox(
-                  height: 20,
-                ),
-                BotaoPrincipal(
-                  labelText: 'Login',
-                  largura: 0.7,
-                  onPressed: () {
-                    verificaLogin(
-                        context, emailController.text, senhaController.text);
-                  },
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                BotaoVazado(
-                  labelText: 'Primeiro Acesso',
-                  largura: 0.7,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const PrimeiroAcesso()),
-                    );
-                  },
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

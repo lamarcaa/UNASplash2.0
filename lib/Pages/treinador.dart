@@ -4,6 +4,7 @@ import 'package:desafio/Components/cardPerfil.dart';
 import 'package:desafio/Pages/cadastraUser.dart';
 import 'package:desafio/Pages/cronometro.dart';
 import 'package:desafio/Pages/perfil.dart';
+import 'package:desafio/Pages/perfilAtleta.dart';
 import 'package:desafio/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -31,11 +32,11 @@ class _TreinadorPageState extends State<TreinadorPage>
   Future<List<Map<String, dynamic>>> loadUsers() async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance.collection('usuarios').get();
+          await FirebaseFirestore.instance
+              .collection('cadastro_finalizado')
+              .get();
 
-      return querySnapshot.docs
-          .map((doc) => doc.data())
-          .toList();
+      return querySnapshot.docs.map((doc) => doc.data()).toList();
     } catch (e) {
       print('Erro ao carregar usuários: $e');
       rethrow;
@@ -171,17 +172,18 @@ class _TreinadorPageState extends State<TreinadorPage>
               return InkWell(
                 child: CardPerfil(
                     nome: usuario['nome'] ?? '',
-                    tipoUsuario: usuario['tipoUsuario'] ?? '',
+                    tipoUsuario: usuario['tipo_usuario'] ?? '',
                     status: usuario['status']),
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Perfil(
+                      builder: (context) => PerfilAtleta(
                         nome: usuario['nome'] ?? '',
-                        tipoUsuario: usuario['tipoUsuario'] ?? '',
-                        userEmail: 'userEmail',
+                        tipoUsuario: usuario['tipo_usuario'] ?? '',
+                        userEmail: usuario['email'],
                         status: usuario['status'],
+                        rg: usuario['rg'] ?? 'Informação não cadastrada',
                       ),
                     ),
                   );

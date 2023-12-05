@@ -1,6 +1,8 @@
 import 'dart:convert';
-
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:desafio/Components/botaoSecundario.dart';
+import 'package:desafio/Components/botaoVazado.dart';
 import 'package:desafio/Components/btnPrincipal.dart';
 import 'package:desafio/Components/dataPicker.dart';
 import 'package:desafio/Components/dropdown.dart';
@@ -9,6 +11,7 @@ import 'package:desafio/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:image_picker/image_picker.dart';
@@ -17,6 +20,8 @@ import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'package:validatorless/validatorless.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:image_picker/image_picker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,8 +31,11 @@ void main() async {
 
   runApp(MaterialApp(
     home: CadastraAtleta(
-      titulo: 'teste',
-      texto: 'teste',
+      titulo: 'Usuário',
+      texto: '',
+      nomeUsuario: 'teste',
+      emailUsuario: 'teste',
+      status: 'teste',
     ),
   ));
 }
@@ -35,11 +43,17 @@ void main() async {
 class CadastraAtleta extends StatefulWidget {
   final String titulo;
   final String texto;
+  final String nomeUsuario;
+  final String emailUsuario;
+  final String status;
 
   const CadastraAtleta({
     Key? key,
     required this.titulo,
     required this.texto,
+    required this.nomeUsuario,
+    required this.emailUsuario,
+    required this.status,
   }) : super(key: key);
 
   @override
@@ -73,8 +87,8 @@ Future<void> cadastrarUsuario(
 }
 
 class _CadastraAtletaState extends State<CadastraAtleta> {
-  final TextEditingController nomeController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
+  TextEditingController nomeController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   final TextEditingController rgController = TextEditingController();
   final TextEditingController cpfController = TextEditingController();
   final TextEditingController nacionalidadeController = TextEditingController();
@@ -98,6 +112,8 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
   final TextEditingController telPaiController = TextEditingController();
   final TextEditingController telOutroController = TextEditingController();
 
+  DateTime? dataSelecionada;
+
   bool value1 = false;
   bool value2 = true;
   bool escondeBtn = false;
@@ -108,6 +124,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
   bool telOutros = false;
   bool telNao = true;
   bool validadeEmail = false;
+  bool alergia = false;
 
   bool btnAtestado = false;
   bool btnRg = false;
@@ -115,6 +132,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
   bool btnResid = false;
   bool btnFoto = false;
   bool btnRegulamento = false;
+  bool btnData = false;
 
   String tipoDeUsuario = 'Administrador';
   String sexoDoUsuario = 'Masculino';
@@ -129,37 +147,52 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
   XFile? regAssinado;
 
   @override
+  void initState() {
+    super.initState();
+    nomeController = TextEditingController(text: widget.nomeUsuario);
+    emailController = TextEditingController(text: widget.emailUsuario);
+  }
+
+  @override
+  void dispose() {
+    nomeController.dispose();
+    emailController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    List<TextEditingController> controllersList = [
+      nomeController,
+      emailController,
+      rgController,
+      cpfController,
+      nacionalidadeController,
+      naturalidadeController,
+      telPessoalController,
+      telEmergenciaController,
+      cepController,
+      ruaController,
+      estadoController,
+      bairroController,
+      cidadeController,
+      nomeMaeController,
+      nomePaiController,
+      clubeOrigemController,
+      localTrabalhoController,
+      convMedController,
+      medicamentoController,
+      telResidController,
+      telTrabController,
+      telMaeController,
+      telPaiController,
+      telOutroController,
+    ];
+
     List<String> op = ['Administrador', 'Treinador', 'Atleta'];
     List<String> opSexo = ['Masculino', 'Feminino', 'Outro'];
     String usuarioSelecionado = 'Administrador';
     String sexoSelecionado = 'Masculino';
-
-    // Future<void> cadastrarUsuario(String tipoUsuario, String nome, String email,
-    //     BuildContext context) async {
-    //   try {
-    //     UserCredential userCredential = await FirebaseAuth.instance
-    //         .createUserWithEmailAndPassword(email: email, password: '123456');
-
-    //     String userId = userCredential.user!.uid;
-    //     await FirebaseFirestore.instance
-    //         .collection('usuarios')
-    //         .doc(userId)
-    //         .set({
-    //       'email': email,
-    //       'nome': nome,
-    //       'tipoUsuario': tipoDeUsuario,
-    //       'status': tipoUsuario == 'Atleta' ? 'incompleto' : 'ativo',
-    //     });
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(
-    //         content: Text("$nome cadastrado com sucesso!"),
-    //       ),
-    //     );
-    //   } catch (e) {
-    //     print('n foi: $e');
-    //   }
-    // }
 
     Future<void> buscarCep(String cep) async {
       print(cep);
@@ -210,47 +243,33 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
               atestado = imagemSelecionada;
               btnAtestado = !btnAtestado;
             });
-            break;
           case 'rg':
             fotoRg = imagemSelecionada;
             setState(() {
               btnRg = !btnRg;
             });
-            break;
           case 'cpf':
             fotoCpf = imagemSelecionada;
             setState(() {
               btnCpf = !btnCpf;
             });
-            break;
           case 'resid':
             comproResid = imagemSelecionada;
             setState(() {
               btnResid = !btnResid;
             });
-            break;
           case 'foto':
             foto = imagemSelecionada;
             setState(() {
               btnFoto = !btnFoto;
             });
-            break;
           case 'regulamento':
             regAssinado = imagemSelecionada;
             setState(() {
               btnRegulamento = !btnRegulamento;
             });
             break;
-          default:
-            break;
         }
-
-        String extensaoOriginal = imagemSelecionada.path.split('.').last;
-        String nomeArquivo = 'imagem.$extensaoOriginal';
-
-        await imagemSelecionada.saveTo(nomeArquivo);
-
-        print('Imagem salva com sucesso como $nomeArquivo');
       }
     }
 
@@ -298,10 +317,111 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
       );
     }
 
+    Future<void> cadastraAtleta(
+      String nome,
+      String email,
+      sexoSelecionado,
+      String rg,
+      String cpf,
+      String nacionaidade,
+      String naturalidade,
+      String telPessoa,
+      String telEmergencia,
+      String cep,
+      String rua,
+      String bairro,
+      String cidade,
+      String estado,
+      XFile? fotoAtestado,
+      XFile? fotoRg,
+      XFile? fotoCpf,
+      XFile? fotoResid,
+      XFile? foto34,
+      XFile? fotoRegAssinado,
+      String nomeMae,
+      String nomePai,
+      String clubeOrigem,
+      String localTrabalho,
+      String convenio,
+      bool alergia,
+      String telResidencial,
+      String telTrabalho,
+      String telMae,
+      String telPai,
+      String telOutro,
+      DateTime? dataSelecionada,
+    ) async {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('cadastro_finalizado')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        try {
+          String documentID = querySnapshot.docs.first.id;
+
+          await FirebaseFirestore.instance
+              .collection('cadastro_finalizado')
+              .doc(documentID)
+              .update({
+            'tipo_nado': 'crawl',
+            'sexo': sexoDoUsuario,
+            'rg': rg,
+            'cpf': cpf,
+            'nacionaidade': nacionaidade,
+            'naturalidade': naturalidade,
+            'telPessoa': telPessoa,
+            'telEmergencia': telEmergencia,
+            'cep': cep,
+            'rua': rua,
+            'bairro': bairro,
+            'cidade': cidade,
+            'estado': estado,
+            'nomeMae': nomeMae,
+            'nomePai': nomePai,
+            'clubeOrigem': clubeOrigem,
+            'localTrabalho': localTrabalho,
+            'convenio': convenio,
+            'alergia': alergia,
+            'telResidencial': telResidencial,
+            'telTrabalho': telTrabalho,
+            'telMae': telMae,
+            'telPai': telPai,
+            'telOutro': telOutro,
+            'data_de_nascimento': dataSelecionada,
+            'status': widget.status
+          });
+          // try {
+          //   // Converta XFile para File
+          //   File imagemArquivo = File(fotoAtestado!.path);
+
+          //   // Envie o arquivo para o Firebase Storage
+          //   await firebase_storage.FirebaseStorage.instance
+          //       .ref('documentID/$fotoAtestado.jpg')
+          //       .putFile(imagemArquivo);
+
+          //   print('Foto enviada com sucesso para o Firebase Storage.');
+          // } catch (e) {
+          //   print('Erro ao enviar a foto para o Firebase Storage: $e');
+          // }
+          //redirecionaAtleta(context);
+
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.success(
+              message: 'Informações cadastradas com sucesso!',
+            ),
+          );
+        } catch (e) {
+          print(e);
+        }
+      } else {
+        print('Usuário não encontrado para o email fornecido.');
+      }
+    }
+
     void validarCampos() {
       List<TextEditingController> controladores = [
-        nomeController,
-        emailController,
         rgController,
         cpfController,
         nacionalidadeController,
@@ -316,7 +436,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
       ];
 
       bool validaCamposObrigatorios = false;
-      bool validaImagens = false;
+      //bool validaImagens = false;
 
       for (TextEditingController controller in controladores) {
         if (!controller.text.isEmpty) {
@@ -324,21 +444,21 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
         }
       }
 
-      if (btnAtestado == true &&
-          btnRg == true &&
-          btnCpf == true &&
-          btnResid == true &&
-          btnFoto == true &&
-          btnRegulamento == true) {
-        validaImagens = true;
-      } else {
-        showTopSnackBar(
-          Overlay.of(context),
-          const CustomSnackBar.error(
-            message: 'Insira todas as fotos',
-          ),
-        );
-      }
+      // if (btnAtestado == true &&
+      //     btnRg == true &&
+      //     btnCpf == true &&
+      //     btnResid == true &&
+      //     btnFoto == true &&
+      //     btnRegulamento == true) {
+      //   //validaImagens = true;
+      // } else {
+      //   showTopSnackBar(
+      //     Overlay.of(context),
+      //     const CustomSnackBar.error(
+      //       message: 'Insira todas as fotos',
+      //     ),
+      //   );
+      // }
 
       if (validaCamposObrigatorios == false) {
         showTopSnackBar(
@@ -347,19 +467,68 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
             message: 'Digite todos os campos obrigatórios',
           ),
         );
-      } else if (validaImagens == false) {
+        exit(0);
+        // } else if (validaImagens == false) {
+        //   showTopSnackBar(
+        //     Overlay.of(context),
+        //     const CustomSnackBar.error(
+        //       message: 'Você não inseriu todas as fotos',
+        //     ),
+        //   );
+        //   exit(0);
+      } else if (dataSelecionada == null) {
         showTopSnackBar(
           Overlay.of(context),
           const CustomSnackBar.error(
-            message: 'Você não inseriu todas as fotos',
+            message: 'Você não inseriu a data',
           ),
         );
+        exit(0);
       } else {
-        print('todos foram');
+        cadastraAtleta(
+            nomeController.text,
+            emailController.text,
+            sexoDoUsuario,
+            rgController.text,
+            cpfController.text,
+            nacionalidadeController.text,
+            naturalidadeController.text,
+            telPessoalController.text,
+            telEmergenciaController.text,
+            cepController.text,
+            ruaController.text,
+            bairroController.text,
+            cidadeController.text,
+            estadoController.text,
+            atestado,
+            fotoRg,
+            fotoCpf,
+            comproResid,
+            foto,
+            regAssinado,
+            nomeMaeController.text,
+            nomePaiController.text,
+            clubeOrigemController.text,
+            localTrabalhoController.text,
+            convMedController.text,
+            alergia,
+            telResidController.text,
+            telTrabController.text,
+            telMaeController.text,
+            telPaiController.text,
+            telOutroController.text,
+            dataSelecionada);
       }
     }
 
     return MaterialApp(
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('pt', 'BR'),
+      ],
       theme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: const Color(0xff6750A4),
@@ -754,8 +923,40 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
                                     ),
                                   ]),
                                 ),
-                                const DataPicker(
-                                    onDateSelected: onDateSelected),
+                                BotaoVazado(
+                                  largura: 0.95,
+                                  labelText: 'Data de Nascimneto',
+                                  onPressed: () {
+                                    setState(() {
+                                      btnData = true;
+                                    });
+                                  },
+                                ),
+                                Visibility(
+                                  visible: btnData,
+                                  child: Column(
+                                    children: [
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      Container(
+                                        color: Colors.white,
+                                        child: CalendarDatePicker(
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime(1900),
+                                          lastDate: DateTime(2100),
+                                          onDateChanged: (value) {
+                                            setState(() {
+                                              dataSelecionada = value;
+                                              print(dataSelecionada);
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
                                 const SizedBox(
                                   height: 50,
                                 ),

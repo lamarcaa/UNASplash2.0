@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:html';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,7 +12,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
-import 'package:http/http.dart' as http;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -94,14 +92,14 @@ class _CadastraUserState extends State<CadastraUser> {
               'BEM VINDO ao UNASplash, $nome! Seu usuário foi criado. Para você poder logar no aplicativo é necessário fazer o Primeiro Acesso na tela de login! Sua senha temporária é: $senhaTemp',
               'UNASPLASH - Pré Cadastro Criado');
 
-          Navigator.pop(context);
+          // Navigator.pop(context);
 
-          showTopSnackBar(
-            Overlay.of(context),
-            const CustomSnackBar.success(
-              message: "Usuário criado com sucesso!",
-            ),
-          );
+          // showTopSnackBar(
+          //   Overlay.of(context),
+          //   const CustomSnackBar.success(
+          //     message: "Usuário criado com sucesso!",
+          //   ),
+          // );
         } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

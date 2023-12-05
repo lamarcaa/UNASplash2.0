@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() {
-  runApp(const Perfil(nome: '', tipoUsuario: '', userEmail: ''));
+  runApp(const Perfil(
+      nome: 'Usuário teste',
+      tipoUsuario: 'Atleta',
+      userEmail: 'teste@gmail.com'));
 }
 
 class Perfil extends StatelessWidget {
@@ -110,7 +113,7 @@ class Perfil extends StatelessWidget {
               SliverToBoxAdapter(
                 child: Container(
                   width: double.infinity,
-                  height: MediaQuery.of(context).size.height * 1,
+                  height: MediaQuery.of(context).size.height * 2,
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     boxShadow: [
@@ -133,7 +136,8 @@ class Perfil extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
+                          padding:
+                              const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
                           child: Text(
                             'Informações',
                             style: GoogleFonts.lexendDeca(
@@ -169,7 +173,8 @@ class Perfil extends StatelessWidget {
                                     style: GoogleFonts.lexendDeca(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: const Color.fromARGB(255, 44, 44, 44),
+                                      color:
+                                          const Color.fromARGB(255, 44, 44, 44),
                                     ),
                                   ),
                                 ),
@@ -203,7 +208,8 @@ class Perfil extends StatelessWidget {
                                     style: GoogleFonts.lexendDeca(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: const Color.fromARGB(255, 44, 44, 44),
+                                      color:
+                                          const Color.fromARGB(255, 44, 44, 44),
                                     ),
                                   ),
                                 ),
@@ -237,7 +243,8 @@ class Perfil extends StatelessWidget {
                                     style: GoogleFonts.lexendDeca(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: const Color.fromARGB(255, 44, 44, 44),
+                                      color:
+                                          const Color.fromARGB(255, 44, 44, 44),
                                     ),
                                   ),
                                 ),
