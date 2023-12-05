@@ -7,8 +7,10 @@ import 'package:desafio/Pages/atletaPendente.dart';
 import 'package:desafio/Pages/cadastraAtleta.dart';
 import 'package:desafio/Pages/primeiroAcesso.dart';
 import 'package:desafio/Pages/treinador.dart';
+import 'package:desafio/model/armazenaId.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'firebase_options.dart';
@@ -23,7 +25,15 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MaterialApp(home: MyApp()));
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => FirebaseIdProvider(),
+      child: MaterialApp(
+        home: MyApp(),
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -50,14 +60,19 @@ class MyApp extends StatelessWidget {
 
     if (querySnapshot.docs.isNotEmpty) {
       DocumentSnapshot userSnapshot = querySnapshot.docs.first;
+      String idUsuario = userSnapshot.id;
+
       Map<String, dynamic> userData =
           userSnapshot.data() as Map<String, dynamic>;
 
-      String senhaUsuario = userData['senhaCadastrada'];
-      String emailUsuario = userData['email'];
-      String statusUsuario = userData['status'];
-      String tipoUsuario = userData['tipo_usuario'];
-      String nomeUsuario = userData['nome'];
+      String senhaUsuario = userData['senhaCadastrada'] ?? '';
+      String emailUsuario = userData['email'] ?? '';
+      String statusUsuario = userData['status'] ?? '';
+      String tipoUsuario = userData['tipo_usuario'] ?? '';
+      String nomeUsuario = userData['nome'] ?? '';
+
+      print('ID do usuário: $idUsuario');
+      armazenarId(idUsuario, context);
 
       if (senhaUsuario == senha && emailUsuario == email) {
         switch (statusUsuario) {
@@ -78,7 +93,7 @@ class MyApp extends StatelessWidget {
             break;
         }
       } else {
-        print('email e senha nao bateu');
+        print('Email e senha não bateram');
       }
     } else {
       showTopSnackBar(
@@ -197,15 +212,31 @@ class MyApp extends StatelessWidget {
       String senha, String tipoUsuario) async {
     print(email);
     print(senha);
+
+    FirebaseAuth auth = FirebaseAuth.instance;
+
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
         email: email,
         password: senha,
       );
 
       redireciona(tipoUsuario, context);
     } catch (e) {
-      print('Erro ao cadastrar usuário: $e');
+      print('Usuário não encontrado, criando novo usuário: $e');
+
+      try {
+        UserCredential newUserCredential =
+            await auth.createUserWithEmailAndPassword(
+          email: email,
+          password: senha,
+        );
+
+        // Novo usuário criado, redireciona
+        redireciona(tipoUsuario, context);
+      } catch (e) {
+        print('Erro ao criar usuário: $e');
+      }
     }
   }
 
@@ -221,6 +252,14 @@ class MyApp extends StatelessWidget {
         );
       },
     );
+  }
+
+  void armazenarId(String id, BuildContext context) {
+    print('chegou 2');
+    final FirebaseIdProvider firebaseIdProvider =
+        Provider.of<FirebaseIdProvider>(context, listen: false);
+
+    firebaseIdProvider.setFirebaseId(id);
   }
 
   @override

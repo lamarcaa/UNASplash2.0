@@ -1,10 +1,15 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:desafio/Components/botaoVazado.dart';
 import 'package:desafio/Components/btnPrincipal.dart';
 import 'package:desafio/Components/dataPicker.dart';
 import 'package:desafio/Components/dropdown.dart';
 import 'package:desafio/Components/textField.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 class Cronometro extends StatefulWidget {
   const Cronometro({super.key});
@@ -46,6 +51,10 @@ class _CronometroState extends State<Cronometro> {
   final FreqCardiacaInicial = TextEditingController();
   final FreqCardiacaFinal = TextEditingController();
 
+  bool btnData = false;
+
+  DateTime? dataSelecionada;
+
   void paraCronometro() {
     timer!.cancel();
     setState(() {
@@ -82,23 +91,34 @@ class _CronometroState extends State<Cronometro> {
   }
 
   void iniciaCronometro() {
-    started = true;
-    timer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
-      setState(() {
-        milisegundos++;
-        if (milisegundos >= 100) {
-          milisegundos = 0;
-          segundos++;
-          if (segundos >= 60) {
-            segundos = 0;
-            minutos++;
+    if (freqInicialController.text.isEmpty) {
+      showTopSnackBar(
+        Overlay.of(context),
+        const CustomSnackBar.error(
+          message: 'Você não digitou a frequencia cardíaca inicial',
+        ),
+      );
+      exit(0);
+    } else {
+      started = true;
+      timer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
+        setState(() {
+          milisegundos++;
+          if (milisegundos >= 100) {
+            milisegundos = 0;
+            segundos++;
+            if (segundos >= 60) {
+              segundos = 0;
+              minutos++;
+            }
           }
-        }
-        digitoMili = (milisegundos >= 10) ? "$milisegundos" : "0$milisegundos";
-        digitoSeg = (segundos >= 10) ? "$segundos" : "0$segundos";
-        digitoMin = (minutos >= 10) ? "$minutos" : "0$minutos";
+          digitoMili =
+              (milisegundos >= 10) ? "$milisegundos" : "0$milisegundos";
+          digitoSeg = (segundos >= 10) ? "$segundos" : "0$segundos";
+          digitoMin = (minutos >= 10) ? "$minutos" : "0$minutos";
+        });
       });
-    });
+    }
   }
 
   @override
@@ -197,6 +217,10 @@ class _CronometroState extends State<Cronometro> {
                   largura: 0.95,
                   controller: freqInicialController,
                   obscureText: false,
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(3),
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                  ],
                 ),
                 const SizedBox(
                   height: 20,
@@ -262,19 +286,7 @@ class _CronometroState extends State<Cronometro> {
               ),
               SliverList(
                 delegate: SliverChildListDelegate(
-                  [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 0, 30),
-                      child: Text(
-                        'Cronometre as voltas do treino avaliativo',
-                        style: GoogleFonts.lexendDeca(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w300,
-                          color: Colors.black38,
-                        ),
-                      ),
-                    ),
-                  ],
+                  [],
                 ),
               ),
               SliverToBoxAdapter(
@@ -294,7 +306,7 @@ class _CronometroState extends State<Cronometro> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     const SizedBox(
-                                      height: 70,
+                                      height: 20,
                                     ),
                                     Text(
                                       "$digitoMin:$digitoSeg:$digitoMili",
@@ -451,6 +463,9 @@ class _CronometroState extends State<Cronometro> {
             foregroundColor: Colors.white,
             onPressed: () {
               infoFinais(context);
+              voltas.forEach((String volta) {
+                print(volta);
+              });
             },
             icon: const Icon(Icons.done),
             label: const Text(
@@ -465,89 +480,125 @@ class _CronometroState extends State<Cronometro> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          color: Colors.grey[200],
-          child: Padding(
-            padding: const EdgeInsets.all(25),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    RichText(
-                      text: const TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '1. ',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black54,
+        return SingleChildScrollView(
+          child: Container(
+            color: Colors.grey[200],
+            child: Padding(
+              padding: const EdgeInsets.all(25),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '1. ',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black54,
+                              ),
                             ),
-                          ),
-                          TextSpan(
-                            text: 'Data da realização da avaliação',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w300,
-                              color: Colors.black54,
+                            TextSpan(
+                              text: 'Data da realização da avaliação',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w300,
+                                color: Colors.black54,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  BotaoVazado(
+                    largura: 0.95,
+                    labelText: 'Escolha a data da Avaliação',
+                    onPressed: () {
+                      setState(() {
+                        btnData = true;
+                        print('btnData definido como true');
+                      });
+                    },
+                  ),
+                  Visibility(
+                    visible: btnData,
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Container(
+                          width: 100,
+                          color: Colors.white,
+                          child: CalendarDatePicker(
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime(2100),
+                            onDateChanged: (value) {
+                              setState(() {
+                                dataSelecionada = value;
+                                print(dataSelecionada);
+                              });
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                DataPicker(onDateSelected: onDateSelected),
-                const SizedBox(
-                  height: 30,
-                ),
-                Row(
-                  children: [
-                    RichText(
-                      text: const TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '2. ',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black54,
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  Row(
+                    children: [
+                      RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '2. ',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black54,
+                              ),
                             ),
-                          ),
-                          TextSpan(
-                            text: 'Frequência Cardíaca Final',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w300,
-                              color: Colors.black54,
+                            TextSpan(
+                              text: 'Frequência Cardíaca Final',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w300,
+                                color: Colors.black54,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                TextFieldPadrao(
-                  labelText: 'Frequência cardíaca final',
-                  largura: 0.95,
-                  controller: freqFinalController,
-                  obscureText: false,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                BotaoPrincipal(
-                  largura: 1,
-                  labelText: 'Finalizar Treino Avaliativo',
-                  onPressed: () {},
-                )
-              ],
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  TextFieldPadrao(
+                    labelText: 'Frequência cardíaca final',
+                    largura: 0.95,
+                    controller: freqFinalController,
+                    obscureText: false,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  BotaoPrincipal(
+                    largura: 1,
+                    labelText: 'Finalizar Treino Avaliativo',
+                    onPressed: () {},
+                  )
+                ],
+              ),
             ),
           ),
         );

@@ -2,6 +2,7 @@ flutter pub add google_fonts
 flutter pub add top_snackbar_flutter
 flutter pub add flutter_speed_dial
 flutter pub add validatorless
+flutter pub add provider
 
 status
 inativo = ainda nao fez o primeiro acesso
