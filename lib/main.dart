@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:desafio/Components/botaoSecundario.dart';
 import 'package:desafio/Components/botaoVazado.dart';
@@ -7,6 +8,7 @@ import 'package:desafio/Pages/atletaPendente.dart';
 import 'package:desafio/Pages/cadastraAtleta.dart';
 import 'package:desafio/Pages/primeiroAcesso.dart';
 import 'package:desafio/Pages/treinador.dart';
+import 'package:desafio/helper/email.dart';
 import 'package:desafio/model/armazenaId.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -25,22 +27,61 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => FirebaseIdProvider(),
-      child: MaterialApp(
-        home: MyApp(),
-      ),
-    ),
-  );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  FirebaseFirestore db = FirebaseFirestore.instance;
+
+  TextEditingController emailRecuperaController = TextEditingController();
+
+  TextEditingController rgRecuperaController = TextEditingController();
+
+  TextEditingController cpfRecuperaController = TextEditingController();
+
   TextEditingController emailController = TextEditingController();
+
   TextEditingController senhaController = TextEditingController();
 
-  Future<void> verificaLogin(
+  TextEditingController senha2Controller = TextEditingController();
+
+  bool btnRecupera1 = false;
+  bool btnRecupera2 = false;
+
+  verificaLogin(String userId, BuildContext context) {
+    final docRef = db.collection("cadastro_finalizado").doc(userId);
+    docRef.get().then((DocumentSnapshot documentSnapshot) {
+      final Map<String, dynamic> data =
+          documentSnapshot.data() as Map<String, dynamic>;
+      final String tipo = data["Tipo"];
+      switch (tipo) {
+        case 'Administrador':
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const AdmPage()),
+              (route) => false);
+          break;
+        case 'Treinador':
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const TreinadorPage()),
+              (route) => false);
+
+          break;
+        case 'Atleta':
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const AtletaPage()),
+              (route) => false);
+          break;
+      }
+    });
+  }
+
+  Future<void> verificaLoginUsuario(
       BuildContext context, String email, String senha) async {
     if (email.isEmpty || senha.isEmpty) {
       showTopSnackBar(
@@ -55,7 +96,6 @@ class MyApp extends StatelessWidget {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('cadastro_finalizado')
         .where('email', isEqualTo: email)
-        .where('senhaCadastrada', isEqualTo: senha)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
@@ -65,7 +105,6 @@ class MyApp extends StatelessWidget {
       Map<String, dynamic> userData =
           userSnapshot.data() as Map<String, dynamic>;
 
-      String senhaUsuario = userData['senhaCadastrada'] ?? '';
       String emailUsuario = userData['email'] ?? '';
       String statusUsuario = userData['status'] ?? '';
       String tipoUsuario = userData['tipo_usuario'] ?? '';
@@ -74,10 +113,10 @@ class MyApp extends StatelessWidget {
       print('ID do usuário: $idUsuario');
       armazenarId(idUsuario, context);
 
-      if (senhaUsuario == senha && emailUsuario == email) {
+      if (emailUsuario == email) {
         switch (statusUsuario) {
           case 'aguardando':
-            mudaStatus(emailUsuario, senhaUsuario, context);
+            mudaStatus(emailUsuario, senha, context);
             break;
           case 'ativo':
             autenticaUsuario(context, email, senha, tipoUsuario);
@@ -142,7 +181,6 @@ class MyApp extends StatelessWidget {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('cadastro_finalizado')
         .where('email', isEqualTo: emailUsuario)
-        .where('senhaCadastrada', isEqualTo: senhaUsuario)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
@@ -240,18 +278,120 @@ class MyApp extends StatelessWidget {
     }
   }
 
+  Future<void> cadastraNovaSenha(BuildContext context, String senha,
+      String confirmaSenha, String email) async {
+    print(senha);
+    print(confirmaSenha);
+    print(email);
+
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('cadastro_finalizado')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        print('achou');
+        DocumentSnapshot userSnapshot = querySnapshot.docs.first;
+
+        await FirebaseFirestore.instance
+            .collection('cadastro_finalizado')
+            .doc(userSnapshot.id);
+
+        Navigator.pop(context);
+        Navigator.pop(context);
+
+        final FirebaseAuth auth = FirebaseAuth.instance;
+
+        final User? user = auth.currentUser;
+
+        if (user != null) {
+          try {
+            // Update the password
+            await user.updatePassword(senha);
+            print('Password updated successfully');
+          } catch (e) {
+            print('Error updating password: $e');
+          }
+        } else {
+          print('User is null');
+        }
+
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.success(
+            message: 'Senha alterada com sucesso',
+          ),
+        );
+
+        print('Senha atualizada com sucesso!');
+      } else {
+        print('Nenhum usuário encontrado.');
+      }
+    } catch (e) {
+      print('Erro ao executar a consulta: $e');
+    }
+  }
+
   void mostrarBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext bc) {
-        return Container(
-          width: 200,
-          child: Column(
-            children: [Text('Digite seu email:')],
+        return SingleChildScrollView(
+          child: Container(
+            color: Colors.grey,
+            padding: EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                Text(
+                  'Digite seu email:',
+                  style: GoogleFonts.lexendDeca(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.black54,
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                TextFieldPadrao(
+                  labelText: 'Email',
+                  largura: 0.85,
+                  obscureText: false,
+                  controller: emailRecuperaController,
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                BotaoPrincipal(
+                  largura: 0.85,
+                  labelText: 'Recuperar Senha',
+                  onPressed: () {
+                    resetarSenha(
+                      context,
+                      emailRecuperaController.text,
+                      cpfRecuperaController.text,
+                      rgRecuperaController.text,
+                    );
+                  },
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
           ),
         );
       },
     );
+  }
+
+  Future<void> resetarSenha(
+      BuildContext context, String email, String cpf, String rg) async {
+    FirebaseAuth.instance.sendPasswordResetEmail(email: email);
   }
 
   void armazenarId(String id, BuildContext context) {
@@ -264,6 +404,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    initState() {
+      FirebaseAuth.instance.authStateChanges().listen((User? user) {
+        if (user != null) {
+          verificaLogin(_auth.currentUser!.uid, context);
+        }
+      });
+    }
+
     return MaterialApp(
       home: Directionality(
         textDirection: TextDirection.ltr,
@@ -348,7 +496,7 @@ class MyApp extends StatelessWidget {
                       labelText: 'Login',
                       largura: 0.7,
                       onPressed: () {
-                        verificaLogin(context, emailController.text,
+                        verificaLoginUsuario(context, emailController.text,
                             senhaController.text);
                       },
                     ),

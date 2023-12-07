@@ -113,7 +113,7 @@ class Perfil extends StatelessWidget {
               SliverToBoxAdapter(
                 child: Container(
                   width: double.infinity,
-                  height: MediaQuery.of(context).size.height * 2,
+                  height: MediaQuery.of(context).size.height * 1,
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     boxShadow: [

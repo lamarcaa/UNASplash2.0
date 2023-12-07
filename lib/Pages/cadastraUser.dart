@@ -38,16 +38,14 @@ class _CadastraUserState extends State<CadastraUser> {
     String usuarioSelecionado = 'administrador';
     List<String> op = ['administrador', 'treinador', 'atleta'];
 
-    String geraNumeroAleatorio() {
-      Random random = Random();
-      int numeroAleatorio = random.nextInt(900) + 100;
-      String senhaTemp = 'unaerp$numeroAleatorio';
+    String senhaUsuario(String nome) {
+      String senhaTemp = nome.substring(nome.lastIndexOf(" ") + 1);
       return senhaTemp;
     }
 
     Future<void> cadastrarUsuario(String tipoUsuario, String nome, String email,
         BuildContext context) async {
-      var senhaTemp = geraNumeroAleatorio();
+      var senhaTemp = senhaUsuario(nome);
 
       RegExp regex = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
       if (nome.isEmpty || email.isEmpty) {
@@ -83,23 +81,17 @@ class _CadastraUserState extends State<CadastraUser> {
             'nome': nome,
             'tipoUsuario': tipoUsuario,
             'status': 'inativo',
-            'senha_temp': senhaTemp,
+            'senha_temp': 'unaerp$senhaTemp',
           });
 
-          enviaEmail(
-              nome,
-              email,
-              'BEM VINDO ao UNASplash, $nome! Seu usuário foi criado. Para você poder logar no aplicativo é necessário fazer o Primeiro Acesso na tela de login! Sua senha temporária é: $senhaTemp',
-              'UNASPLASH - Pré Cadastro Criado');
+          Navigator.pop(context);
 
-          // Navigator.pop(context);
-
-          // showTopSnackBar(
-          //   Overlay.of(context),
-          //   const CustomSnackBar.success(
-          //     message: "Usuário criado com sucesso!",
-          //   ),
-          // );
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.success(
+              message: "Usuário criado com sucesso!",
+            ),
+          );
         } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -299,7 +291,7 @@ class _CadastraUserState extends State<CadastraUser> {
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
-                                      'A senha de primeiro acesso do usuário será enviada por e-mail!',
+                                      'Avise ao usuário que a senha é seu unaerp + seu ultimo nome',
                                       style: GoogleFonts.lexendDeca(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w500,

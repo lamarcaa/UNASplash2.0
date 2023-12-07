@@ -6,7 +6,7 @@ import 'package:desafio/Components/appBar.dart';
 import 'package:desafio/Components/cardPerfil.dart';
 import 'package:desafio/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Importe a biblioteca do Firebase Auth aqui
+import 'package:firebase_auth/firebase_auth.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

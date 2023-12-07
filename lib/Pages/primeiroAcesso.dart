@@ -137,7 +137,6 @@ class _PrimeiroAcessoState extends State<PrimeiroAcesso> {
                   'tipo_usuario': tipoUsuario,
                   'status':
                       tipoUsuario == 'atleta' ? 'incompleto' : 'aguardando',
-                  'senhaCadastrada': novaSenha
                 });
 
 

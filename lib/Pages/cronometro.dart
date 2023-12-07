@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:desafio/Components/botaoVazado.dart';
 import 'package:desafio/Components/btnPrincipal.dart';
 import 'package:desafio/Components/dataPicker.dart';
 import 'package:desafio/Components/dropdown.dart';
 import 'package:desafio/Components/textField.dart';
+import 'package:desafio/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,13 +21,18 @@ class Cronometro extends StatefulWidget {
   State<Cronometro> createState() => _CronometroState();
 }
 
-void main() {
-  runApp(const MaterialApp(
-    home: Cronometro(),
-  ));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MaterialApp(home: Cronometro()));
 }
 
 class _CronometroState extends State<Cronometro> {
+  late Future<List<String>> nomesAtletasFuture;
+  String? atletaSelecionado;
+  String atletaDoTreino = '';
   final TextEditingController freqInicialController = TextEditingController();
   final TextEditingController freqFinalController = TextEditingController();
   int milisegundos = 0;
@@ -51,7 +59,7 @@ class _CronometroState extends State<Cronometro> {
   final FreqCardiacaInicial = TextEditingController();
   final FreqCardiacaFinal = TextEditingController();
 
-  bool btnData = false;
+  bool btnData1 = false;
 
   DateTime? dataSelecionada;
 
@@ -124,6 +132,8 @@ class _CronometroState extends State<Cronometro> {
   @override
   void initState() {
     super.initState();
+    nomesAtletasFuture = consultarAtletas();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       infoIniciais();
     });
@@ -133,64 +143,64 @@ class _CronometroState extends State<Cronometro> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          color: Colors.grey[200],
-          child: Padding(
-            padding: const EdgeInsets.all(25),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    RichText(
-                      text: TextSpan(
+        return SingleChildScrollView(
+          child: Container(
+            color: Colors.grey[200],
+            child: Padding(
+              padding: const EdgeInsets.all(25),
+              child: Column(
+                children: [
+                  FutureBuilder<List<String>>(
+                    future: nomesAtletasFuture,
+                    builder: (context, snapshot) {
+                      List<String> nomesAtletas = snapshot.data ?? [];
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          TextSpan(
-                            text: '1. ',
-                            style: GoogleFonts.lexendDeca(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          TextSpan(
-                            text: 'Que estilo será avaliado?',
-                            style: GoogleFonts.lexendDeca(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w300,
-                              color: Colors.black54,
-                            ),
+                          FutureBuilder<List<String>>(
+                            future: nomesAtletasFuture,
+                            builder: (context, snapshot) {
+                              List<String> nomesAtletas = snapshot.data ?? [];
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  DropdownButton<String?>(
+                                    value: atletaSelecionado,
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        atletaSelecionado = newValue;
+                                      });
+                                    },
+                                    items: [
+                                      DropdownMenuItem<String?>(
+                                        value: atletaSelecionado,
+                                        child: Text('Selecione um atleta'),
+                                      ),
+                                      ...nomesAtletas
+                                          .map((String nome) =>
+                                              DropdownMenuItem<String?>(
+                                                value: nome,
+                                                child: Text(nome),
+                                              ))
+                                          .toList(),
+                                    ],
+                                  ),
+                                  SizedBox(height: 20),
+                                ],
+                              );
+                            },
                           ),
                         ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                DropdownPadrao(
-                  options: estiloTreino,
-                  value: 'Crawl',
-                  onChanged: (value) {
-                    setState(() {
-                      dropdownValue = value ?? '';
-                    });
-                  },
-                  labelText: '',
-                  largura: 0.95,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 20, 0, 10),
-                      child: RichText(
+                      );
+                    },
+                  ),
+                  Row(
+                    children: [
+                      RichText(
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: '2. ',
+                              text: '1. ',
                               style: GoogleFonts.lexendDeca(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
@@ -198,8 +208,7 @@ class _CronometroState extends State<Cronometro> {
                               ),
                             ),
                             TextSpan(
-                              text:
-                                  'Qual a frquência cardíaca inicial do atleta?',
+                              text: 'Que estilo será avaliado?',
                               style: GoogleFonts.lexendDeca(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w300,
@@ -209,30 +218,77 @@ class _CronometroState extends State<Cronometro> {
                           ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                TextFieldPadrao(
-                  labelText: 'Frequência cardíaca inicial',
-                  largura: 0.95,
-                  controller: freqInicialController,
-                  obscureText: false,
-                  inputFormatters: [
-                    LengthLimitingTextInputFormatter(3),
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                  ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                BotaoPrincipal(
-                  largura: 0.95,
-                  labelText: 'Iniciar Treino',
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                )
-              ],
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  DropdownPadrao(
+                    options: estiloTreino,
+                    value: 'Crawl',
+                    onChanged: (value) {
+                      setState(() {
+                        dropdownValue = value ?? '';
+                      });
+                    },
+                    labelText: '',
+                    largura: 0.95,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 20, 0, 10),
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: '2. ',
+                                style: GoogleFonts.lexendDeca(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              TextSpan(
+                                text:
+                                    'Qual a frquência cardíaca inicial do atleta?',
+                                style: GoogleFonts.lexendDeca(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w300,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  TextFieldPadrao(
+                    labelText: 'Frequência cardíaca inicial',
+                    largura: 0.95,
+                    controller: freqInicialController,
+                    obscureText: false,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(3),
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  BotaoPrincipal(
+                    largura: 0.95,
+                    labelText: 'Iniciar Treino',
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  )
+                ],
+              ),
             ),
           ),
         );
@@ -240,16 +296,120 @@ class _CronometroState extends State<Cronometro> {
     );
   }
 
-  void trataCampos() {
-    if (FreqCardiacaInicial.text.isEmpty) {
-      // showTopSnackBar(
-      //   Overlay.of(context),
-      //   CustomSnackBar.info(
-      //     message: "Digite a frequência cardíaca!",
-      //   ),
-      // );
-    } else {
-      Navigator.pop(context);
+  Future<void> trataCampos(
+    String? usuario,
+    String? estilo,
+    String? freqInicial,
+    DateTime dataAvaliacao,
+    String? freqFinal,
+    BuildContext context,
+  ) async {
+    print('Usuario: $usuario');
+    print('Estilo: $estilo');
+    print('Frequencia Inicial: $freqInicial');
+    print('Data Avaliacao: $dataAvaliacao');
+    print('Frequencia Final: $freqFinal');
+
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('cadastro_finalizado')
+        .where('nome', isEqualTo: usuario)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      DocumentSnapshot userSnapshot = querySnapshot.docs.first;
+      String idAtleta = userSnapshot.id;
+
+      try {
+        await FirebaseFirestore.instance.collection('info_treino').doc().set({
+          'idAtleta': idAtleta,
+          'nome': usuario,
+          'estilo': estilo,
+          'frequencia_cardiaca_inicial': freqInicial,
+          'dtn_avaliacao': dataAvaliacao,
+          'frequencia_cardiaca_final': freqFinal
+        });
+
+        cadastraVoltas(idAtleta, context);
+      } catch (e) {
+        print(e);
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text("Nome ou email inválidos"),
+        //   ),
+        // );
+      }
+    }
+  }
+
+  Future<void> cadastraVoltas(String idAtleta, BuildContext context) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('info_treino')
+          .where('idAtleta', isEqualTo: idAtleta)
+          .limit(1) 
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        String idInfoTreino = querySnapshot.docs.first.id;
+
+        // Cadastra as voltas no documento voltas_treino do atleta
+        await FirebaseFirestore.instance
+            .collection('voltas_treino')
+            .doc(idAtleta)
+            .set({
+          'idAtleta': idAtleta,
+          'idInfoTreino': idInfoTreino,
+          'voltas': voltas
+              .asMap()
+              .entries
+              .map((entry) => {
+                    'numeroVolta': entry.key + 1,
+                    'tempo': entry.value,
+                  })
+              .toList(),
+        });
+
+        Navigator.pop(context);
+        Navigator.pop(context);
+
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.success(
+            message: "Treino Cadastrado",
+          ),
+        );
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<List<String>> consultarAtletas() async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('cadastro_finalizado')
+          .where('tipo_usuario', isEqualTo: 'atleta')
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        // Mapeia os nomes dos atletas para a lista
+        List<String> nomesAtletas = querySnapshot.docs
+            .map((DocumentSnapshot document) => document['nome'] as String)
+            .toList();
+
+        // Adiciona prints para verificar os nomes dos atletas
+        //print('Nomes dos Atletas (lista): $nomesAtletas');
+        // for (var nome in nomesAtletas) {
+        //   print('Atleta: $nome');
+        // }
+
+        return nomesAtletas;
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print('Erro ao consultar atletas: $e');
+      return [];
     }
   }
 
@@ -516,40 +676,26 @@ class _CronometroState extends State<Cronometro> {
                   const SizedBox(
                     height: 10,
                   ),
-                  BotaoVazado(
-                    largura: 0.95,
-                    labelText: 'Escolha a data da Avaliação',
-                    onPressed: () {
-                      setState(() {
-                        btnData = true;
-                        print('btnData definido como true');
-                      });
-                    },
-                  ),
-                  Visibility(
-                    visible: btnData,
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 20,
+                  Column(
+                    children: [
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Container(
+                        color: Colors.white,
+                        child: CalendarDatePicker(
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime(2100),
+                          onDateChanged: (value) {
+                            setState(() {
+                              dataSelecionada = value;
+                              //print(dataSelecionada);
+                            });
+                          },
                         ),
-                        Container(
-                          width: 100,
-                          color: Colors.white,
-                          child: CalendarDatePicker(
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime(2100),
-                            onDateChanged: (value) {
-                              setState(() {
-                                dataSelecionada = value;
-                                print(dataSelecionada);
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(
                     height: 30,
@@ -595,7 +741,16 @@ class _CronometroState extends State<Cronometro> {
                   BotaoPrincipal(
                     largura: 1,
                     labelText: 'Finalizar Treino Avaliativo',
-                    onPressed: () {},
+                    onPressed: () {
+                      //cadastraVoltas();
+                      trataCampos(
+                          atletaSelecionado,
+                          dropdownValue,
+                          freqInicialController.text,
+                          dataSelecionada!,
+                          freqFinalController.text,
+                          context);
+                    },
                   )
                 ],
               ),
@@ -607,6 +762,6 @@ class _CronometroState extends State<Cronometro> {
   }
 
   void onDateSelected(DateTime selectedDate) {
-    print("Data selecionada: $selectedDate");
+    // print("Data selecionada: $selectedDate");
   }
 }

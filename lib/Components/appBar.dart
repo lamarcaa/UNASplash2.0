@@ -1,4 +1,5 @@
 import 'package:desafio/main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -56,7 +57,10 @@ class AppBarPersonalizada extends StatelessWidget {
                         content: const Text('Deseja sair?'),
                         actions: <Widget>[
                           TextButton(
-                            onPressed: () {
+                            onPressed: () async {
+                              // Adicione a lógica de logout aqui
+                              await FirebaseAuth.instance.signOut();
+
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
