@@ -23,7 +23,7 @@ void main() async {
 }
 
 class TreinadorPage extends StatefulWidget {
-  const TreinadorPage({super.key});
+  const TreinadorPage({Key? key}) : super(key: key);
 
   @override
   _TreinadorPageState createState() => _TreinadorPageState();
@@ -31,6 +31,16 @@ class TreinadorPage extends StatefulWidget {
 
 class _TreinadorPageState extends State<TreinadorPage>
     with AutomaticKeepAliveClientMixin {
+  late Future<List<Map<String, dynamic>>> users;
+  late Future<List<Map<String, dynamic>>> treinos;
+
+  @override
+  void initState() {
+    super.initState();
+    users = loadUsers();
+    treinos = loadTreinos();
+  }
+
   Future<List<Map<String, dynamic>>> loadUsers() async {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot =
@@ -156,7 +166,7 @@ class _TreinadorPageState extends State<TreinadorPage>
 
   Widget _buildUserList() {
     return FutureBuilder(
-      future: loadUsers(),
+      future: users,
       builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
         return Padding(
           padding: const EdgeInsets.all(10),
@@ -223,7 +233,7 @@ class _TreinadorPageState extends State<TreinadorPage>
 
   Widget _buildUserTreino() {
     return FutureBuilder(
-      future: loadTreinos(),
+      future: treinos,
       builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
         return Padding(
           padding: const EdgeInsets.all(10),

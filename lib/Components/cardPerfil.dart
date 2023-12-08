@@ -111,12 +111,12 @@ class CardPerfil extends StatelessWidget {
               ),
             ),
             if (status !=
-                null) // Verifica se o status é fornecido antes de exibi-lo
+                null) 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Row(
                   children: [
-                    getStatusIcon(), // Use a função para obter o ícone dinamicamente
+                    getStatusIcon(), 
                     const SizedBox(width: 4),
                     Text(
                       getStatusText(),
@@ -124,7 +124,7 @@ class CardPerfil extends StatelessWidget {
                         fontSize: 14,
                         fontWeight: FontWeight.w300,
                         color:
-                            getStatusColor(), // Use a função para obter a cor dinamicamente
+                            getStatusColor(), 
                       ),
                     ),
                   ],

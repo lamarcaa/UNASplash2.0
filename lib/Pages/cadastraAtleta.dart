@@ -391,20 +391,6 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
             'data_de_nascimento': dataSelecionada,
             'status': widget.status
           });
-          // try {
-          //   // Converta XFile para File
-          //   File imagemArquivo = File(fotoAtestado!.path);
-
-          //   // Envie o arquivo para o Firebase Storage
-          //   await firebase_storage.FirebaseStorage.instance
-          //       .ref('documentID/$fotoAtestado.jpg')
-          //       .putFile(imagemArquivo);
-
-          //   print('Foto enviada com sucesso para o Firebase Storage.');
-          // } catch (e) {
-          //   print('Erro ao enviar a foto para o Firebase Storage: $e');
-          // }
-          //redirecionaAtleta(context);
 
           showTopSnackBar(
             Overlay.of(context),
@@ -444,21 +430,6 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
         }
       }
 
-      // if (btnAtestado == true &&
-      //     btnRg == true &&
-      //     btnCpf == true &&
-      //     btnResid == true &&
-      //     btnFoto == true &&
-      //     btnRegulamento == true) {
-      //   //validaImagens = true;
-      // } else {
-      //   showTopSnackBar(
-      //     Overlay.of(context),
-      //     const CustomSnackBar.error(
-      //       message: 'Insira todas as fotos',
-      //     ),
-      //   );
-      // }
 
       if (validaCamposObrigatorios == false) {
         showTopSnackBar(
@@ -468,14 +439,7 @@ class _CadastraAtletaState extends State<CadastraAtleta> {
           ),
         );
         exit(0);
-        // } else if (validaImagens == false) {
-        //   showTopSnackBar(
-        //     Overlay.of(context),
-        //     const CustomSnackBar.error(
-        //       message: 'Você não inseriu todas as fotos',
-        //     ),
-        //   );
-        //   exit(0);
+      
       } else if (dataSelecionada == null) {
         showTopSnackBar(
           Overlay.of(context),

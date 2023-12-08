@@ -291,7 +291,7 @@ class _CadastraUserState extends State<CadastraUser> {
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
-                                      'Avise ao usuário que a senha é seu unaerp + seu ultimo nome',
+                                      'Avise ao usuário que a senha é unaerp + seu ultimo nome',
                                       style: GoogleFonts.lexendDeca(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w500,

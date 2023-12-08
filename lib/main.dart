@@ -1,31 +1,40 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:desafio/Components/botaoSecundario.dart';
 import 'package:desafio/Components/botaoVazado.dart';
+import 'package:desafio/Components/btnPrincipal.dart';
+import 'package:desafio/Components/textField.dart';
+import 'package:desafio/Pages/administrador.dart';
 import 'package:desafio/Pages/atleta.dart';
 import 'package:desafio/Pages/atletaPendente.dart';
 import 'package:desafio/Pages/cadastraAtleta.dart';
 import 'package:desafio/Pages/primeiroAcesso.dart';
 import 'package:desafio/Pages/treinador.dart';
-import 'package:desafio/helper/email.dart';
+import 'package:desafio/firebase_options.dart';
 import 'package:desafio/model/armazenaId.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
-import 'firebase_options.dart';
-import 'package:desafio/Components/btnPrincipal.dart';
-import 'package:desafio/Components/textField.dart';
-import 'package:desafio/Pages/administrador.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+            create: (_) =>
+                FirebaseIdProvider()), 
+      ],
+      child: MaterialApp(
+        home: MyApp(),
+      ),
+    ),
   );
 }
 
@@ -34,25 +43,147 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
+final FirebaseAuth _auth = FirebaseAuth.instance;
+
+FirebaseFirestore db = FirebaseFirestore.instance;
+
+TextEditingController emailRecuperaController = TextEditingController();
+
+TextEditingController rgRecuperaController = TextEditingController();
+
+TextEditingController cpfRecuperaController = TextEditingController();
+
+TextEditingController emailController = TextEditingController();
+
+TextEditingController senhaController = TextEditingController();
+
+TextEditingController senha2Controller = TextEditingController();
+
+bool btnRecupera1 = false;
+bool btnRecupera2 = false;
+
 class _MyAppState extends State<MyApp> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  @override
+  Widget build(BuildContext context) {
+    initState() {
+      FirebaseAuth.instance.authStateChanges().listen((User? user) {
+        if (user != null) {
+          verificaLogin(_auth.currentUser!.uid, context);
+        }
+      });
+    }
 
-  FirebaseFirestore db = FirebaseFirestore.instance;
-
-  TextEditingController emailRecuperaController = TextEditingController();
-
-  TextEditingController rgRecuperaController = TextEditingController();
-
-  TextEditingController cpfRecuperaController = TextEditingController();
-
-  TextEditingController emailController = TextEditingController();
-
-  TextEditingController senhaController = TextEditingController();
-
-  TextEditingController senha2Controller = TextEditingController();
-
-  bool btnRecupera1 = false;
-  bool btnRecupera2 = false;
+    return MaterialApp(
+      home: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Scaffold(
+          body: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(
+                      'https://i.imgur.com/ba0aEf2.jpg',
+                    ),
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              Container(
+                color: Colors.black54.withOpacity(0.7),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.network(
+                          'https://i.imgur.com/oX5YSQe.png',
+                          width: 200,
+                          height: 200,
+                          fit: BoxFit.contain,
+                        ),
+                      ],
+                    ),
+                    Text(
+                      'Bem-vindo de volta, sentimos sua falta!',
+                      style: GoogleFonts.lexendDeca(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w300,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    TextFieldPadrao(
+                      labelText: 'Email',
+                      largura: 0.7,
+                      controller: emailController,
+                      obscureText: false,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    TextFieldPadrao(
+                      labelText: 'Senha',
+                      largura: 0.7,
+                      obscureText: false,
+                      controller: senhaController,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 100),
+                      child: InkWell(
+                        onTap: () {
+                          mostrarBottomSheet(context);
+                        },
+                        child: Text(
+                          'Esqueceu sua senha? Clique Aqui!',
+                          style: GoogleFonts.lexendDeca(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w300,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    BotaoPrincipal(
+                      labelText: 'Login',
+                      largura: 0.7,
+                      onPressed: () {
+                        verificaLoginUsuario(context, emailController.text,
+                            senhaController.text);
+                      },
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    BotaoVazado(
+                      labelText: 'Primeiro Acesso',
+                      largura: 0.7,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const PrimeiroAcesso()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   verificaLogin(String userId, BuildContext context) {
     final docRef = db.collection("cadastro_finalizado").doc(userId);
@@ -400,127 +531,5 @@ class _MyAppState extends State<MyApp> {
         Provider.of<FirebaseIdProvider>(context, listen: false);
 
     firebaseIdProvider.setFirebaseId(id);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    initState() {
-      FirebaseAuth.instance.authStateChanges().listen((User? user) {
-        if (user != null) {
-          verificaLogin(_auth.currentUser!.uid, context);
-        }
-      });
-    }
-
-    return MaterialApp(
-      home: Directionality(
-        textDirection: TextDirection.ltr,
-        child: Scaffold(
-          body: Stack(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(
-                      'https://i.imgur.com/ba0aEf2.jpg',
-                    ),
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-              Container(
-                color: Colors.black54.withOpacity(0.7),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.network(
-                          'https://i.imgur.com/oX5YSQe.png',
-                          width: 200,
-                          height: 200,
-                          fit: BoxFit.contain,
-                        ),
-                      ],
-                    ),
-                    Text(
-                      'Bem-vindo de volta, sentimos sua falta!',
-                      style: GoogleFonts.lexendDeca(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    TextFieldPadrao(
-                      labelText: 'Email',
-                      largura: 0.7,
-                      controller: emailController,
-                      obscureText: false,
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    TextFieldPadrao(
-                      labelText: 'Senha',
-                      largura: 0.7,
-                      obscureText: false,
-                      controller: senhaController,
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 100),
-                      child: InkWell(
-                        onTap: () {
-                          mostrarBottomSheet(context);
-                        },
-                        child: Text(
-                          'Esqueceu sua senha? Clique Aqui!',
-                          style: GoogleFonts.lexendDeca(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w300,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    BotaoPrincipal(
-                      labelText: 'Login',
-                      largura: 0.7,
-                      onPressed: () {
-                        verificaLoginUsuario(context, emailController.text,
-                            senhaController.text);
-                      },
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    BotaoVazado(
-                      labelText: 'Primeiro Acesso',
-                      largura: 0.7,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const PrimeiroAcesso()),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

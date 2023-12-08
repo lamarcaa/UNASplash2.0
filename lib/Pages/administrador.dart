@@ -6,7 +6,7 @@ import 'package:desafio/Components/appBar.dart';
 import 'package:desafio/Components/cardPerfil.dart';
 import 'package:desafio/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart'; 
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,26 +51,14 @@ class AdmPage extends StatefulWidget {
 }
 
 class _AdmPageState extends State<AdmPage> {
-  List<Map<String, dynamic>> infoUsuario = [];
   String userEmail = 'g.lamarca@outlook.com';
 
   @override
   void initState() {
     super.initState();
-    fetchData();
-    fetchUserEmail(); // Obtenha o e-mail do usuário autenticado ao inicializar a página
+    fetchUserEmail();
   }
 
-  Future<void> fetchData() async {
-    final data = await getDocuments('pre_cadastro');
-    data.sort((a, b) => (a['nome'] as String).compareTo(b['nome'] as String));
-
-    setState(() {
-      infoUsuario = data;
-    });
-  }
-
-  // Função para obter o e-mail do usuário autenticado
   Future<void> fetchUserEmail() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -94,26 +82,47 @@ class _AdmPageState extends State<AdmPage> {
             const SizedBox(
               height: 10,
             ),
-            for (final usuario in infoUsuario)
-              InkWell(
-                child: CardPerfil(
-                  nome: usuario['nome'] ?? '',
-                  tipoUsuario: usuario['tipoUsuario'] ?? '',
-                  status: '',
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Perfil(
-                        nome: usuario['nome'] ?? '',
-                        tipoUsuario: usuario['tipoUsuario'] ?? '',
-                        userEmail: userEmail,
+            StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('pre_cadastro')
+                  .snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (!snapshot.hasData) {
+                  return CircularProgressIndicator();
+                }
+
+                final List<Map<String, dynamic>> infoUsuario = snapshot
+                    .data!.docs
+                    .map((doc) =>
+                        {'id': doc.id, ...doc.data() as Map<String, dynamic>})
+                    .toList();
+
+                return Column(
+                  children: [
+                    for (final usuario in infoUsuario)
+                      InkWell(
+                        child: CardPerfil(
+                          nome: usuario['nome'] ?? '',
+                          tipoUsuario: usuario['tipoUsuario'] ?? '',
+                          status: '',
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Perfil(
+                                nome: usuario['nome'] ?? '',
+                                tipoUsuario: usuario['tipoUsuario'] ?? '',
+                                userEmail: userEmail,
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    ),
-                  );
-                },
-              ),
+                  ],
+                );
+              },
+            ),
           ],
         ),
       ),
