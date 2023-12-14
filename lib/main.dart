@@ -72,83 +72,109 @@ class _MyAppState extends State<MyApp> {
     }
 
     return MaterialApp(
-      home: Scaffold(
-        body: Container(
-          width: double.infinity,
-          color: Colors.black54.withOpacity(0.7),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+      home: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Scaffold(
+          body: Stack(
             children: [
-              Image.asset('assets/Adidas_logo.png'),
-              Text(
-                'Bem-vindo de volta, sentimos sua falta!',
-                style: GoogleFonts.lexendDeca(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w300,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              TextFieldPadrao(
-                labelText: 'Email',
-                largura: 0.7,
-                controller: emailController,
-                obscureText: false,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              TextFieldPadrao(
-                labelText: 'Senha',
-                largura: 0.7,
-                obscureText: false,
-                controller: senhaController,
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 100),
-                child: InkWell(
-                  onTap: () {
-                    mostrarBottomSheet(context);
-                  },
-                  child: Text(
-                    'Esqueceu sua senha? Clique Aqui!',
-                    style: GoogleFonts.lexendDeca(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w300,
-                      color: Colors.white,
+              Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(
+                      'https://i.imgur.com/ba0aEf2.jpg',
                     ),
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
-              SizedBox(
-                height: 20,
-              ),
-              BotaoPrincipal(
-                labelText: 'Login',
-                largura: 0.7,
-                onPressed: () {
-                  // verificaLoginUsuario(
-                  //     context, emailController.text, senhaController.text);
-                },
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              BotaoVazado(
-                labelText: 'Primeiro Acesso',
-                largura: 0.7,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const PrimeiroAcesso()),
-                  );
-                },
+              Container(
+                color: Colors.black54.withOpacity(0.7),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.network(
+                          'https://i.imgur.com/oX5YSQe.png',
+                          width: 200,
+                          height: 200,
+                          fit: BoxFit.contain,
+                        ),
+                      ],
+                    ),
+                    Text(
+                      'Bem-vindo de volta, sentimos sua falta!',
+                      style: GoogleFonts.lexendDeca(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w300,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    TextFieldPadrao(
+                      labelText: 'Email',
+                      largura: 0.7,
+                      controller: emailController,
+                      obscureText: false,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    TextFieldPadrao(
+                      labelText: 'Senha',
+                      largura: 0.7,
+                      obscureText: true,
+                      controller: senhaController,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 100),
+                      child: InkWell(
+                        onTap: () {
+                          mostrarBottomSheet(context);
+                        },
+                        child: Text(
+                          'Esqueceu sua senha? Clique Aqui!',
+                          style: GoogleFonts.lexendDeca(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w300,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    BotaoPrincipal(
+                      labelText: 'Login',
+                      largura: 0.7,
+                      onPressed: () {
+                        verificaLoginUsuario(context, emailController.text,
+                            senhaController.text);
+                      },
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    BotaoVazado(
+                      labelText: 'Primeiro Acesso',
+                      largura: 0.7,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const PrimeiroAcesso()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

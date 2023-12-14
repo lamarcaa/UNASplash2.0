@@ -19,7 +19,6 @@ class CardPerfil extends StatelessWidget {
     } else if (status == 'incompleto') {
       return Icon(Icons.warning_rounded, color: Colors.orange[400]);
     } else {
-      // Caso pendente ou null
       return const Icon(Icons.access_time, color: Colors.grey);
     }
   }
@@ -110,21 +109,19 @@ class CardPerfil extends StatelessWidget {
                 ],
               ),
             ),
-            if (status !=
-                null) 
+            if (status != null)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Row(
                   children: [
-                    getStatusIcon(), 
+                    getStatusIcon(),
                     const SizedBox(width: 4),
                     Text(
                       getStatusText(),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w300,
-                        color:
-                            getStatusColor(), 
+                        color: getStatusColor(),
                       ),
                     ),
                   ],
@@ -133,7 +130,6 @@ class CardPerfil extends StatelessWidget {
           ],
         ),
       ),
-            
     );
   }
 }

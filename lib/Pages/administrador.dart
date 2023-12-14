@@ -102,9 +102,9 @@ class _AdmPageState extends State<AdmPage> {
                     for (final usuario in infoUsuario)
                       InkWell(
                         child: CardPerfil(
-                          nome: usuario['nome'] ?? '',
+                          nome: usuario['status'] ?? '',
                           tipoUsuario: usuario['tipoUsuario'] ?? '',
-                          status: '',
+                          status: usuario['status'],
                         ),
                         onTap: () {
                           Navigator.push(
